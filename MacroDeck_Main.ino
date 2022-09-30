@@ -25,6 +25,8 @@ volatile bool SW_awakenByInterrupt;
 unsigned long loopCount;
 unsigned long startTime;
 
+Profiles activeProfile;
+
 void setup()
 {
     pinMode(SW_INT, INPUT_PULLUP);
@@ -36,12 +38,13 @@ void setup()
 
     loopCount = 0;
     startTime = millis();
+    activeProfile = Desktop;
 }
 
 void loop()
 {
-    handleMatrix();
-    handleSwitches(SW_awakenByInterrupt);
+    handleMatrix(activeProfile);
+    handleSwitches(activeProfile, SW_awakenByInterrupt);
 }
 
 ISR(PCINT0_vect)

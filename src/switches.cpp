@@ -73,6 +73,8 @@ void sw_begin()
         mcp.setupInterruptPin(tSwitches[s], CHANGE);
     }
 
+    Keyboard.begin();
+
     startTime = 0;
 }
 
@@ -167,7 +169,7 @@ bool getKeys()
 }
 
 // REM it might be better to include everything in scanKeys or to filter keyStates
-void handleMatrix()
+void handleMatrix(Profiles &profile)
 {
     if (getKeys())
     {
@@ -181,11 +183,19 @@ void handleMatrix()
                     break;
 
                 case pressed:
-                    /*code*/
+                    for (byte k = 0; k < MAX_MACRO; k++)
+                    {
+                        Keyboard.press(macroBase[profile][r][c][k]);
+                    }
+                    Keyboard.releaseAll(); // maybe in release? It wouldn't allow toggles
                     break;
 
                 case hold:
-                    /*code*/
+                    for (byte k = 0; k < MAX_MACRO; k++)
+                    {
+                        Keyboard.press(macroHold[profile][r][c][k]);
+                    }
+                    Keyboard.releaseAll(); // maybe in release? It wouldn't allow toggle
                     break;
 
                 case released:
@@ -200,7 +210,7 @@ void handleMatrix()
     }
 }
 
-void handleSwitches(volatile bool &SW_awakenByInterrupt)
+void handleSwitches(Profiles &profile, volatile bool &SW_awakenByInterrupt)
 {
     if (SW_awakenByInterrupt)
     {
