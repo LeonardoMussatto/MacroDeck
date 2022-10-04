@@ -6,7 +6,7 @@
 
 #define RE_INT 7
 #define RE_ADDR 0x21
-Adafruit_MCP23X08 mcp;
+Adafruit_MCP23X08 re;
 
 #define RE_1A 11
 #define RE_1B 10
@@ -17,10 +17,12 @@ Adafruit_MCP23X08 mcp;
 #define RE_4A 14
 #define RE_4B 15
 const byte rotaryEncPins[2][4] = {{RE_1A, RE_2A, RE_3A, RE_4A}, {RE_1B, RE_2B, RE_3B, RE_4B}};
-R1 = MD_REncoder(RE_1A, RE_1B);
-R2 = MD_REncoder(RE_2A, RE_2B);
-R3 = MD_REncoder(RE_3A, RE_3B);
-R4 = MD_REncoder(RE_4A, RE_4B);
+
+#define SLOW 100
+MD_REncoder R1 = MD_REncoder(RE_1A, RE_1B);
+MD_REncoder R2 = MD_REncoder(RE_2A, RE_2B);
+MD_REncoder R3 = MD_REncoder(RE_3A, RE_3B);
+MD_REncoder R4 = MD_REncoder(RE_4A, RE_4B);
 
 volatile bool RE_awakenByInterrupt;
 
@@ -28,18 +30,18 @@ volatile bool RE_awakenByInterrupt;
 
 void re_begin()
 {
-    mcp.begin_I2C(RE_ADDR);
-    mcp.setupInterrupts(false, false, LOW);
+    re.begin_I2C(RE_ADDR);
+    re.setupInterrupts(false, false, LOW);
 
     attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
 
     // init pins as inputs and interrupts on change
-    for (e = 0; e < 4; e++)
+    for (byte e = 0; e < 4; e++)
     {
-        for (p = 0; p < 2; p++)
+        for (byte p = 0; p < 2; p++)
         {
-            mcp.pinMode(rotaryEncPins[p][e], INPUT);
-            mcp.setupInterruptPin(rotaryEncPins[p][e], CHANGE);
+            re.pinMode(rotaryEncPins[p][e], INPUT);
+            re.setupInterruptPin(rotaryEncPins[p][e], CHANGE);
         }
     }
 
@@ -54,62 +56,48 @@ void RE_intCallBack()
     RE_awakenByInterrupt = true;
 }
 
-void handleEncoder()
+void findEncoder()
 {
-    if (mcp.getLastInterruptPin == RE_1A || mcp.getLastInterruptPin == RE_1B)
-    {
-        R1.read() == DIR_CW ?
-        {
-            R1.speed() > SLOW ? /*something fast*/: /*something slow*/;
-        }
-        :
-        {
-            R1.speed() > SLOW ? /*something else fast*/: /*something else*/
-        }
-    }
-    if (mcp.getLastInterruptPin == RE_2A || mcp.getLastInterruptPin == RE_2B)
-    {
-        R2.read() == DIR_CW ?
-        {
-            R2.speed() > SLOW ? /*something fast*/: /*something slow*/;
-        }
-        :
-        {
-            R2.speed() > SLOW ? /*something else fast*/: /*something else*/
-        }
-    }
-    if (mcp.getLastInterruptPin == RE_3A || mcp.getLastInterruptPin == RE_3B)
-    {
-        R3.read() == DIR_CW ?
-        {
-            R3.speed() > SLOW ? /*something fast*/: /*something slow*/;
-        }
-        :
-        {
-            R3.speed() > SLOW ? /*something else fast*/: /*something else*/
-        }
-    }
-    if (mcp.getLastInterruptPin == RE_4A || mcp.getLastInterruptPin == RE_4B)
-    {
-        R4.read() == DIR_CW ?
-        {
-            R4.speed() > SLOW ? /*something fast*/: /*something slow*/;
-        }
-        :
-        {
-            R4.speed() > SLOW ? /*something else fast*/: /*something else*/
-        }
-    }
+    if (re.getLastInterruptPin() == RE_1A || re.getLastInterruptPin() == RE_1B)
+        handleEncoder(R1.read(), R1.speed(), 1);
+    if (re.getLastInterruptPin() == RE_2A || re.getLastInterruptPin() == RE_2B)
+        handleEncoder(R2.read(), R2.speed(), 2);
+    if (re.getLastInterruptPin() == RE_3A || re.getLastInterruptPin() == RE_3B)
+        handleEncoder(R3.read(), R3.speed(), 3);
+    if (re.getLastInterruptPin() == RE_4A || re.getLastInterruptPin() == RE_4B)
+        handleEncoder(R4.read(), R4.speed(), 4);
 
-    SW_awakenByInterrupt = false;
+    RE_awakenByInterrupt = false;
+}
+
+void handleEncoder(byte dir, uint16_t spd, byte id)
+{
+    if (dir == DIR_CW)
+    {
+        if (spd > SLOW)
+        { /*something fast*/
+        }
+        else
+        { /*something slow*/
+        }
+    }
+    else
+    {
+        if (spd > SLOW)
+        { /*something else fast*/
+        }
+        else
+        { /*something else slow*/
+        }
+    }
 }
 
 void checkEncoders()
 {
-    if (awakenByInterrupt)
+    if (RE_awakenByInterrupt)
     {
         detachInterrupt(digitalPinToInterrupt(RE_INT));
-        handleEncoder();
-        attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack(), FALLING);
+        findEncoder();
+        attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
     }
 }

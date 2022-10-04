@@ -1,6 +1,5 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoPixel.h>
-#include <Adafruit_MCP23X08.h>
 #include <Adafruit_ST7789.h>
 #include <SPI.h>
 #include "src/encoders.h"
