@@ -3,7 +3,7 @@
 
 // mcp 23017 over I2C
 #define SW_ADDR 0x20
-Adafruit_MCP23X17 mcp;
+Adafruit_MCP23X17 sw;
 
 // Independent switches
 #define SW_15 5
@@ -47,30 +47,30 @@ unsigned long holdTimer;
 
 void sw_begin()
 {
-    mcp.begin_I2C(SW_ADDR);
+    sw.begin_I2C(SW_ADDR);
 
     // init matrix
     for (byte r = 0; r < ROWS; r++)
     {
-        mcp.pinMode(rowPins[r], INPUT_PULLUP);
+        sw.pinMode(rowPins[r], INPUT_PULLUP);
     }
     for (byte c = 0; c < COLS; c++)
     {
-        mcp.pinMode(colPins[c], OUTPUT);
+        sw.pinMode(colPins[c], OUTPUT);
     }
 
-    mcp.setupInterrupts(false, false, LOW);
+    sw.setupInterrupts(false, false, LOW);
 
     // init interrupt on change for R_SW_# and SW_15/16
     for (byte s = 0; s < 4; s++)
     {
-        mcp.pinMode(rSwitches[s], INPUT);
-        mcp.setupInterruptPin(rSwitches[s], CHANGE);
+        sw.pinMode(rSwitches[s], INPUT);
+        sw.setupInterruptPin(rSwitches[s], CHANGE);
     }
     for (byte s = 0; s < 2; s++)
     {
-        mcp.pinMode(tSwitches[s], INPUT);
-        mcp.setupInterruptPin(tSwitches[s], CHANGE);
+        sw.pinMode(tSwitches[s], INPUT);
+        sw.setupInterruptPin(tSwitches[s], CHANGE);
     }
 
     Keyboard.begin();
@@ -83,14 +83,14 @@ void scanKeys()
 {
     for (byte c = 0; c < COLS; c++)
     {
-        mcp.digitalWrite(colPins[c], LOW);
+        sw.digitalWrite(colPins[c], LOW);
 
         for (byte r = 0; r < ROWS; r++)
         {
-            bitWrite(bitMap[r], c, !mcp.digitalRead(rowPins[r])); // keypress is active low so invert to high.
+            bitWrite(bitMap[r], c, !sw.digitalRead(rowPins[r])); // keypress is active low so invert to high.
         }
 
-        mcp.digitalWrite(colPins[c], HIGH);
+        sw.digitalWrite(colPins[c], HIGH);
     }
 }
 
@@ -214,30 +214,30 @@ void handleSwitches(Profiles &profile, volatile bool &SW_awakenByInterrupt)
 {
     if (SW_awakenByInterrupt)
     {
-        switch (mcp.getLastInterruptPin())
+        switch (sw.getLastInterruptPin())
         {
         case R_SW_1:
-            handleSwitch(mcp.digitalRead(R_SW_1), 1, 3);
+            handleSwitch(sw.digitalRead(R_SW_1), 1, 3);
             break;
 
         case R_SW_2:
-            handleSwitch(mcp.digitalRead(R_SW_2), 2, 3);
+            handleSwitch(sw.digitalRead(R_SW_2), 2, 3);
             break;
 
         case R_SW_3:
-            handleSwitch(mcp.digitalRead(R_SW_3), 3, 3);
+            handleSwitch(sw.digitalRead(R_SW_3), 3, 3);
             break;
 
         case R_SW_4:
-            handleSwitch(mcp.digitalRead(R_SW_4), 4, 3);
+            handleSwitch(sw.digitalRead(R_SW_4), 4, 3);
             break;
 
         case SW_15:
-            handleSwitch(mcp.digitalRead(SW_15), 5, 3);
+            handleSwitch(sw.digitalRead(SW_15), 5, 3);
             break;
 
         case SW_16:
-            handleSwitch(mcp.digitalRead(SW_16), 6, 3);
+            handleSwitch(sw.digitalRead(SW_16), 6, 3);
             break;
 
         default:

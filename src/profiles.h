@@ -1,3 +1,5 @@
+#ifndef PROFILES_H
+#define PROFILES_H
 #include <Keyboard.h>
 
 #define MAX_PROFILES 7
@@ -54,3 +56,5 @@ char macroBase[MAX_PROFILES][2][7][MAX_MACRO] =
 };
 
 char macroHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
+
+#endif
