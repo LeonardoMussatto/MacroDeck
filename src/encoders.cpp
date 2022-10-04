@@ -18,7 +18,7 @@ Adafruit_MCP23X08 re;
 #define RE_4B 15
 const byte rotaryEncPins[2][4] = {{RE_1A, RE_2A, RE_3A, RE_4A}, {RE_1B, RE_2B, RE_3B, RE_4B}};
 
-#define SLOW 100
+#define FAST 100
 MD_REncoder R1 = MD_REncoder(RE_1A, RE_1B);
 MD_REncoder R2 = MD_REncoder(RE_2A, RE_2B);
 MD_REncoder R3 = MD_REncoder(RE_3A, RE_3B);
@@ -56,48 +56,44 @@ void RE_intCallBack()
     RE_awakenByInterrupt = true;
 }
 
-void findEncoder()
+void selectEncoder(Profiles &profile)
 {
     if (re.getLastInterruptPin() == RE_1A || re.getLastInterruptPin() == RE_1B)
-        handleEncoder(R1.read(), R1.speed(), 1);
+        handleEncoder(R1.read(), R1.speed(), 0, profile);
     if (re.getLastInterruptPin() == RE_2A || re.getLastInterruptPin() == RE_2B)
-        handleEncoder(R2.read(), R2.speed(), 2);
+        handleEncoder(R2.read(), R2.speed(), 1, profile);
     if (re.getLastInterruptPin() == RE_3A || re.getLastInterruptPin() == RE_3B)
-        handleEncoder(R3.read(), R3.speed(), 3);
+        handleEncoder(R3.read(), R3.speed(), 2, profile);
     if (re.getLastInterruptPin() == RE_4A || re.getLastInterruptPin() == RE_4B)
-        handleEncoder(R4.read(), R4.speed(), 4);
+        handleEncoder(R4.read(), R4.speed(), 3, profile);
 
     RE_awakenByInterrupt = false;
 }
 
-void handleEncoder(byte dir, uint16_t spd, byte id)
+void handleEncoder(byte dir, uint16_t spd, byte id, Profiles &profile)
 {
-    if (dir == DIR_CW)
+    if (spd < FAST)
     {
-        if (spd > SLOW)
-        { /*something fast*/
-        }
-        else
-        { /*something slow*/
+        for (byte k = 0; k < MAX_MACRO; k++)
+        {
+            Keyboard.press(re_macroSlow[profile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
         }
     }
     else
     {
-        if (spd > SLOW)
-        { /*something else fast*/
-        }
-        else
-        { /*something else slow*/
+        for (byte k = 0; k < MAX_MACRO; k++)
+        {
+            Keyboard.press(re_macroFast[profile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
         }
     }
 }
 
-void checkEncoders()
+void handleEncoders(Profiles &profile)
 {
     if (RE_awakenByInterrupt)
     {
         detachInterrupt(digitalPinToInterrupt(RE_INT));
-        findEncoder();
+        selectEncoder(profile);
         attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
     }
 }

@@ -25,6 +25,8 @@ volatile bool SW_awakenByInterrupt;
 unsigned long loopCount;
 unsigned long startTime;
 
+Profiles activeProfile;
+
 void setup()
 {
     re_begin();
@@ -35,5 +37,5 @@ void setup()
 
 void loop()
 {
-    checkEncoders();
+    handleEncoders(activeProfile);
 }
