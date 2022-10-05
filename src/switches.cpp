@@ -28,20 +28,17 @@ const byte colPins[COLS] = {11, 14, 15, 8, 12, 13, 0}; // pin 4,7,8,1,5,6,21
  * SW14 | SW12 | SW10 | SW8 | SW6 | SW4 | SW2
  */
 byte bitMap[2];
-enum State
-{
-    idle,
-    pressed,
-    hold,
-    released
-};
-State keyStates[3][7] = {idle};
 
 // Timers
 unsigned long startTime;
 unsigned long debounceTime = 10;
 unsigned long holdTime = 500;
 unsigned long holdTimer;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ?? Is pressed called before hold? it would lead to sending two commands...
+// REM handle switch might be able to handle matrix switches too
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +91,7 @@ void scanKeys()
     }
 }
 
-bool handleSwitch(bool closed, const byte &c, const byte &r)
+bool handleState(bool closed, const byte &c, const byte &r)
 {
     bool changed = false;
 
@@ -146,7 +143,7 @@ bool updateStates()
     {
         for (byte r = 0; r < ROWS; r++)
         {
-            anyActivity = handleSwitch(bitRead(bitMap[r], c), c, r);
+            anyActivity = handleState(bitRead(bitMap[r], c), c, r);
         }
     }
 
@@ -168,7 +165,6 @@ bool getKeys()
     return keyActivity;
 }
 
-// REM it might be better to include everything in scanKeys or to filter keyStates
 void handleMatrix(Profiles &profile)
 {
     if (getKeys())
@@ -185,7 +181,7 @@ void handleMatrix(Profiles &profile)
                 case pressed:
                     for (byte k = 0; k < MAX_MACRO; k++)
                     {
-                        Keyboard.press(macroBase[profile][r][c][k]);
+                        Keyboard.press(matrixBase[profile][r][c][k]);
                     }
                     Keyboard.releaseAll(); // maybe in release? It wouldn't allow toggles
                     break;
@@ -193,7 +189,7 @@ void handleMatrix(Profiles &profile)
                 case hold:
                     for (byte k = 0; k < MAX_MACRO; k++)
                     {
-                        Keyboard.press(macroHold[profile][r][c][k]);
+                        Keyboard.press(matrixHold[profile][r][c][k]);
                     }
                     Keyboard.releaseAll(); // maybe in release? It wouldn't allow toggle
                     break;
@@ -210,6 +206,39 @@ void handleMatrix(Profiles &profile)
     }
 }
 
+// ?? can pass by ref be used here?
+void handleSwitch(int pin, int id, Profiles &profile)
+{
+    if (handleState(sw.digitalRead(pin), id, 3))
+    {
+        switch (keyStates[id][3])
+        {
+        case idle:
+            break;
+
+        case pressed:
+            for (byte k = 0; k < MAX_MACRO; k++)
+            {
+                Keyboard.press(swBase[profile][id][k]);
+            }
+            Keyboard.releaseAll(); // maybe in release? It wouldn't allow toggles
+            break;
+
+        case hold:
+            byte bitId = (id % 2) ? id : id + 4;
+            bitWrite(swHold[profile], bitId, !bitRead(swHold[profile], bitId));
+            break;
+
+        case released:
+            /* code */
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
 void handleSwitches(Profiles &profile, volatile bool &SW_awakenByInterrupt)
 {
     if (SW_awakenByInterrupt)
@@ -217,27 +246,27 @@ void handleSwitches(Profiles &profile, volatile bool &SW_awakenByInterrupt)
         switch (sw.getLastInterruptPin())
         {
         case R_SW_1:
-            handleSwitch(sw.digitalRead(R_SW_1), 1, 3);
+            handleSwitch(R_SW_1, 0, profile);
             break;
 
         case R_SW_2:
-            handleSwitch(sw.digitalRead(R_SW_2), 2, 3);
+            handleSwitch(R_SW_2, 1, profile);
             break;
 
         case R_SW_3:
-            handleSwitch(sw.digitalRead(R_SW_3), 3, 3);
+            handleSwitch(R_SW_3, 2, profile);
             break;
 
         case R_SW_4:
-            handleSwitch(sw.digitalRead(R_SW_4), 4, 3);
+            handleSwitch(R_SW_4, 3, profile);
             break;
 
         case SW_15:
-            handleSwitch(sw.digitalRead(SW_15), 5, 3);
+            handleSwitch(SW_15, 4, profile);
             break;
 
         case SW_16:
-            handleSwitch(sw.digitalRead(SW_16), 6, 3);
+            handleSwitch(SW_16, 5, profile);
             break;
 
         default:

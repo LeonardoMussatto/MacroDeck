@@ -16,6 +16,15 @@ enum Profiles
     VsCode
 };
 
+enum State
+{
+    idle,
+    pressed,
+    hold,
+    released
+};
+State keyStates[3][7] = {idle};
+
 // REM SW_15/16 could be used as mod toggles - e.g. toggle hold
 // TODO add settings shortcut to desktop
 // TODO add R_SW
@@ -30,7 +39,7 @@ enum Profiles
  *  R_SW_1 | R_SW_2 | R_SW_3 | R_SW_4 | SW_15 | SW_16  |  --
  *
  */
-char macroBase[MAX_PROFILES][2][7][MAX_MACRO] =
+char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
     {
         {// Desktop
          {{KEY_LEFT_GUI, '2' /*Control Center*/}, {KEY_LEFT_GUI, '7' /*DaVinci*/}, {KEY_LEFT_GUI, '3' /*Firefox*/}, {/*Horizon*/}, {/*NMS*/}, {KEY_LEFT_GUI, '5' /*GitKraken*/}, {/*Spotify*/}},
@@ -55,6 +64,62 @@ char macroBase[MAX_PROFILES][2][7][MAX_MACRO] =
          {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}}},
 };
 
-char macroHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
+char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
+
+char swBase[MAX_PROFILES][6][MAX_MACRO] =
+    {
+        {// Desktop
+         {/**/},
+         {/**/},
+         {/**/},
+         {{KEY_RIGHT_ALT}, {KEY_F10} /*Play/Pause*/},
+         {/**/},
+         {/**/}},
+        {// Reaper
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+        {// DaVinci_Fairlight
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+        {// DaVinci_Colour
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+        {// DaVinci_Edit
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+        {// Blender
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+        {// VsCode
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/},
+         {/**/}},
+};
+
+// REM potentially each switch could circle between many states
+byte swHold[MAX_PROFILES] = {00000000};
 
 #endif

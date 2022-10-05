@@ -21,10 +21,6 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_DC, TFT_SDA, TFT_SCK, TFT_RST);
 #define SW_INT 8 // Arduino PCint pin
 volatile bool SW_awakenByInterrupt;
 
-// Switch matrix
-unsigned long loopCount;
-unsigned long startTime;
-
 Profiles activeProfile;
 
 void setup()
@@ -36,8 +32,6 @@ void setup()
 
     sw_begin();
 
-    loopCount = 0;
-    startTime = millis();
     activeProfile = Desktop;
 }
 
