@@ -84,57 +84,11 @@ char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
 
 char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
 
-char swBase[MAX_PROFILES][6][MAX_MACRO] =
+char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
     {
         {// Desktop
-         {/**/},
-         {/**/},
-         {/**/},
-         {{KEY_RIGHT_ALT}, {KEY_F10} /*Play/Pause*/},
-         {/**/},
-         {/**/}},
-        {// Reaper
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
-        {// DaVinci_Fairlight
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
-        {// DaVinci_Colour
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
-        {// DaVinci_Edit
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
-        {// Blender
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
-        {// VsCode
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/},
-         {/**/}},
+         {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F1, 0 /*Screen Off*/}, {KEY_RIGHT_ALT, KEY_F10, 0 /*Play/Pause*/}, {/**/}, {/**/}},
+         {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F6, 0 /*Lock*/}, {KEY_RIGHT_ALT, KEY_F7, 0 /*Mute*/}, {/**/}, {/**/}}},
 };
 
 #endif

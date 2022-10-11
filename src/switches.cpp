@@ -553,7 +553,7 @@ void handleSwitch(int pin, int id)
             case pressed:
                 for (byte k = 0; k < MAX_MACRO; k++)
                 {
-                    Keyboard.press(swBase[activeProfile][id][k]);
+                    Keyboard.press(swBase[activeProfile][bitRead(swHold[2], id)][id][k]);
                 }
                 Keyboard.releaseAll();
                 break;
