@@ -21,8 +21,6 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_DC, TFT_SDA, TFT_SCK, TFT_RST);
 #define SW_INT 8 // Arduino PCint pin
 volatile bool SW_awakenByInterrupt;
 
-Profiles activeProfile;
-
 void setup()
 {
     pinMode(SW_INT, INPUT_PULLUP);
@@ -37,8 +35,8 @@ void setup()
 
 void loop()
 {
-    handleMatrix(activeProfile);
-    handleSwitches(activeProfile, SW_awakenByInterrupt);
+    handleMatrix();
+    handleSwitches(SW_awakenByInterrupt);
 }
 
 ISR(PCINT0_vect)
