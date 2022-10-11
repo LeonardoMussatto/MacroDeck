@@ -1,13 +1,8 @@
 #include <Adafruit_GFX.h>
-#include <Adafruit_NeoPixel.h>
 #include <Adafruit_ST7789.h>
 #include <SPI.h>
 #include "src/switches.h"
-
-// LEDs
-#define LED_PIN 11
-#define LED_COUNT 20
-Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+#include "src/leds.h"
 
 // TFT Screen
 #define TFT_DC 12
@@ -29,8 +24,8 @@ void setup()
     PCMSK0 |= (1 << PCINT4);
 
     sw_begin();
-
     activeProfile = Desktop;
+    led_begin();
 }
 
 void loop()

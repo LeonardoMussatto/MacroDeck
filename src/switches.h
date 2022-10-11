@@ -1,6 +1,5 @@
 #ifndef SWITCHES_H
 #define SWITCHES_H
-#include "profiles.h"
 
 void sw_begin();
 void handleMatrix();

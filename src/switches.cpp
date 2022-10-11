@@ -1,4 +1,6 @@
 #include "switches.h"
+#include "profiles.h"
+#include "leds.h"
 #include <Adafruit_MCP23X17.h>
 
 // mcp 23017 over I2C
@@ -445,6 +447,7 @@ void selectProfile(byte &modRow, byte &modCol)
     }
 }
 
+// STYLE hold and longHold colours are placeholders
 /* Keypresses sent after release
  * This way short press macros won't activate before press length is determined
  */
@@ -468,10 +471,12 @@ void handleMatrix()
 
                 case hold:
                     lastState[r][c] = hold;
+                    led.setPixelColor(swLedId[r][c], grey);
                     break;
 
                 case longHold:
                     lastState[r][c] = longHold;
+                    led.setPixelColor(swLedId[r][c], white);
                     break;
 
                 case released:
@@ -491,6 +496,7 @@ void handleMatrix()
                             Keyboard.press(matrixHold[activeProfile][r][c][k]);
                         }
                         Keyboard.releaseAll();
+                        led.setPixelColor(swLedId[r][c], ledProfiles[activeProfile][r][c]);
                         break;
 
                     case longHold:
@@ -509,6 +515,7 @@ void handleMatrix()
                             swHold[r] &= mask;
                         }
                         selectProfile(r, c);
+                        updateLeds();
                         break;
 
                     default:
@@ -522,6 +529,7 @@ void handleMatrix()
                 }
             }
         }
+        led.show();
     }
 }
 
