@@ -23,8 +23,8 @@ volatile bool SW_awakenByInterrupt;
 
 void setup()
 {
+    // use SW_INT as interrupt pin
     pinMode(SW_INT, INPUT_PULLUP);
-
     PCICR |= (1 << PCIE0);
     PCMSK0 |= (1 << PCINT4);
 

@@ -40,11 +40,10 @@ unsigned long holdTimer;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// ?? Is pressed called before hold? it would lead to sending two commands...
-// REM handle switch might be able to handle matrix switches too
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/**
+ * @brief Init mcp, SW_matrix, RE_switches, T_switches & respective mcp interrupts
+ *
+ */
 void sw_begin()
 {
     sw.begin_I2C(SW_ADDR);
@@ -78,7 +77,10 @@ void sw_begin()
     startTime = 0;
 }
 
-// Pulse each column and store ALL pressed keys in bitmap
+/**
+ * @brief Pulse each column and store ALL keys in bitmap
+ *
+ */
 void scanKeys()
 {
     for (byte c = 0; c < COLS; c++)
@@ -94,6 +96,14 @@ void scanKeys()
     }
 }
 
+/**
+ * @brief Read last state and write new state
+ *
+ * @param closed HIGH/LOW - switch state
+ * @param c key column in bitmap
+ * @param r key row in bitmap
+ * @return true/false - whether the key state changed
+ */
 bool handleState(bool closed, const byte &c, const byte &r)
 {
     bool changed = false;
@@ -149,6 +159,11 @@ bool handleState(bool closed, const byte &c, const byte &r)
     }
 }
 
+/**
+ * @brief calls handleState() for each key in the matrix
+ * @return true/false - whether any state change occurred
+ *
+ */
 bool updateStates()
 {
     bool anyActivity = false;
@@ -157,13 +172,20 @@ bool updateStates()
     {
         for (byte r = 0; r < ROWS; r++)
         {
-            anyActivity = handleState(bitRead(bitMap[r], c), c, r);
+            bool activity = handleState(bitRead(bitMap[r], c), c, r);
+            if (!anyActivity && activity)
+                anyActivity = true;
         }
     }
 
     return anyActivity;
 }
 
+/**
+ * @brief Scan matrix if enough time passed since last scan (debounce), then call updateStates()
+ * @return true/false - whether at leas one state change occurred
+ *
+ */
 bool getKeys()
 {
     bool keyActivity = false;
@@ -195,6 +217,12 @@ bool getKeys()
 //     }
 // }
 
+/**
+ * @brief Select new activeProfile according to held key and current profile
+ *
+ * @param modRow modifier row in swHold
+ * @param modCol modifier column in swHold
+ */
 void selectProfile(byte &modRow, byte &modCol)
 {
     if (bitRead(swHold[modRow], modCol))
@@ -445,8 +473,10 @@ void selectProfile(byte &modRow, byte &modCol)
     }
 }
 
-/* Keypresses sent after release
- * This way short press macros won't activate before press length is determined
+/**
+ * @brief Call getKeys() and handle keys if any change occurred.
+ * @note Keypresses are sent after release. This way press macros won't activate before press length is determined
+ *
  */
 void handleMatrix()
 {
@@ -526,8 +556,11 @@ void handleMatrix()
 }
 
 // ?? can pass by ref be used here?
-/* Keypresses sent after release
- * This way short press macros won't activate before press length is determined
+/**
+ * @brief Call handleState() for the specified key and handle state change
+ *
+ * @param pin pin that caused the interrupt
+ * @param id column in state maps
  */
 void handleSwitch(int pin, int id)
 {
@@ -574,6 +607,11 @@ void handleSwitch(int pin, int id)
     }
 }
 
+/**
+ * @brief Call handleSwitch() for the key that caused an interrupt
+ *
+ * @param SW_awakenByInterrupt true/false - whether a key caused an interrupt
+ */
 void handleSwitches(volatile bool &SW_awakenByInterrupt)
 {
     if (SW_awakenByInterrupt)
