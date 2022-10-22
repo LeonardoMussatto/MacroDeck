@@ -47,44 +47,44 @@ void RE_intCallBack()
     RE_awakenByInterrupt = true;
 }
 
-void handleEncoder(byte dir, uint16_t spd, byte id, Profiles &profile)
+void handleEncoder(byte dir, uint16_t spd, byte id)
 {
     if (spd < FAST)
     {
         for (byte k = 0; k < MAX_MACRO; k++)
         {
-            Keyboard.press(re_macroSlow[profile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
+            Keyboard.press(re_macroSlow[activeProfile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
         }
     }
     else
     {
         for (byte k = 0; k < MAX_MACRO; k++)
         {
-            Keyboard.press(re_macroFast[profile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
+            Keyboard.press(re_macroFast[activeProfile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
         }
     }
 }
 
-void selectEncoder(Profiles &profile)
+void selectEncoder()
 {
     if (re.getLastInterruptPin() == RE_1A || re.getLastInterruptPin() == RE_1B)
-        handleEncoder(R1.read(re), R1.speed(), 0, profile);
+        handleEncoder(R1.read(re), R1.speed(), 0);
     if (re.getLastInterruptPin() == RE_2A || re.getLastInterruptPin() == RE_2B)
-        handleEncoder(R2.read(re), R2.speed(), 1, profile);
+        handleEncoder(R2.read(re), R2.speed(), 1);
     if (re.getLastInterruptPin() == RE_3A || re.getLastInterruptPin() == RE_3B)
-        handleEncoder(R3.read(re), R3.speed(), 2, profile);
+        handleEncoder(R3.read(re), R3.speed(), 2);
     if (re.getLastInterruptPin() == RE_4A || re.getLastInterruptPin() == RE_4B)
-        handleEncoder(R4.read(re), R4.speed(), 3, profile);
+        handleEncoder(R4.read(re), R4.speed(), 3);
 
     RE_awakenByInterrupt = false;
 }
 
-void handleEncoders(Profiles &profile)
+void handleEncoders()
 {
     if (RE_awakenByInterrupt)
     {
         detachInterrupt(digitalPinToInterrupt(RE_INT));
-        selectEncoder(profile);
+        selectEncoder();
         attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
     }
 }

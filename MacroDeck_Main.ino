@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_ST7789.h>
 #include <SPI.h>
+
 #include "src/encoders.h"
 #include "src/switches.h"
 
@@ -37,7 +38,7 @@ void setup()
 
 void loop()
 {
-    handleEncoders(activeProfile);
+    handleEncoders();
     handleMatrix();
     handleSwitches(SW_awakenByInterrupt);
 }

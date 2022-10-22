@@ -3,6 +3,6 @@
 #include "profiles.h"
 
 void re_begin();
-void handleEncoders(Profiles &profile);
+void handleEncoders();
 
 #endif

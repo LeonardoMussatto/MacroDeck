@@ -44,12 +44,10 @@ State lastState[3][7] = {idle};
 
 // REM potentially each switch could circle between many states
 byte swHold[3] = {00000000};
-// REM SW_15/16 could be used as mod toggles - e.g. toggle hold
 
+// REM SW_15/16 could be used as mod toggles - e.g. toggle hold
 // TODO add settings shortcut to desktop
 // TODO add R_SW
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*  [n of profiles][rows][cols][keys]
  *                   |     |
@@ -63,6 +61,8 @@ byte swHold[3] = {00000000};
 // {// prototype
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}},
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}}},
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
     {
@@ -93,6 +93,7 @@ char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
         {// Desktop
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F1, 0 /*Screen Off*/}, {KEY_RIGHT_ALT, KEY_F10, 0 /*Play/Pause*/}, {/**/}, {/**/}},
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F6, 0 /*Lock*/}, {KEY_RIGHT_ALT, KEY_F7, 0 /*Mute*/}, {/**/}, {/**/}}},
+};
 
 char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
     {// Desktop
