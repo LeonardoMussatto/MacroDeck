@@ -3,8 +3,10 @@
 #include <Keyboard.h>
 
 #define MAX_PROFILES 7
-#define MAX_MACRO 3
 #define ALT_PROFILES 1
+#define MAX_MACRO 3
+#define MAX_RE 4
+#define DIR 2
 
 enum Profiles
 {
@@ -42,10 +44,12 @@ State lastState[3][7] = {idle};
 
 // REM potentially each switch could circle between many states
 byte swHold[3] = {00000000};
-
 // REM SW_15/16 could be used as mod toggles - e.g. toggle hold
+
 // TODO add settings shortcut to desktop
 // TODO add R_SW
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*  [n of profiles][rows][cols][keys]
  *                   |     |
@@ -89,6 +93,53 @@ char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
         {// Desktop
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F1, 0 /*Screen Off*/}, {KEY_RIGHT_ALT, KEY_F10, 0 /*Play/Pause*/}, {/**/}, {/**/}},
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F6, 0 /*Lock*/}, {KEY_RIGHT_ALT, KEY_F7, 0 /*Mute*/}, {/**/}, {/**/}}},
+
+char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+    {// Desktop
+     {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
+     {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
+    {// Reaper
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Fairlight
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Colour
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Edit
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// Blender
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// VsCode
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+};
+
+char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+    {// Desktop
+     {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
+     {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
+    {// Reaper
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Fairlight
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Colour
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// DaVinci_Edit
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// Blender
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
+    {// VsCode
+     {{/**/}, {/**/}, {/**/}, {/**/}},
+     {{/**/}, {/**/}, {/**/}, {/**/}}},
 };
 
 #endif

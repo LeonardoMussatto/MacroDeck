@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_ST7789.h>
 #include <SPI.h>
+#include "src/encoders.h"
 #include "src/switches.h"
 
 // LEDs
@@ -29,12 +30,14 @@ void setup()
     PCMSK0 |= (1 << PCINT4);
 
     sw_begin();
+    re_begin();
 
     activeProfile = Desktop;
 }
 
 void loop()
 {
+    handleEncoders(activeProfile);
     handleMatrix();
     handleSwitches(SW_awakenByInterrupt);
 }
