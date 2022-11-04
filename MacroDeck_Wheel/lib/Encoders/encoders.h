@@ -1,6 +1,6 @@
 #ifndef ENCODERS_H
 #define ENCODERS_H
-#include "profiles.h"
+#include <profiles.h>
 
 void re_begin();
 void handleEncoders();

@@ -1,50 +1,6 @@
-#ifndef PROFILES_H
-#define PROFILES_H
-#include <Keyboard.h>
-
-#define MAX_PROFILES 7
-#define ALT_PROFILES 1
-#define MAX_MACRO 3
-#define MAX_RE 4
-#define DIR 2
-
-enum Profiles
-{
-    Desktop,
-    Firefox,
-    Reaper,
-    DaVinci_Fairlight,
-    DaVinci_Colour,
-    DaVinci_Edit,
-    Graphic,
-    Blender,
-    Cinema4D,
-    Unity,
-    Unreal,
-    SketchUp,
-    Fusion,
-    TouchDesigner,
-    Coding,
-    KiCad,
-    File_Explorer,
-    Games
-};
-Profiles activeProfile;
-
-enum State
-{
-    idle,
-    pressed,
-    hold,
-    longHold,
-    released
-};
-State keyStates[3][7] = {idle};
-State lastState[3][7] = {idle};
+#include "profiles.h"
 
 // REM potentially each switch could circle between many states
-byte swHold[3] = {00000000};
-
 // REM SW_15/16 could be used as mod toggles - e.g. toggle hold
 // TODO add settings shortcut to desktop
 // TODO add R_SW
@@ -62,9 +18,56 @@ byte swHold[3] = {00000000};
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}},
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}}},
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+State keyStates[3][7] = {idle};
+State lastState[3][7] = {idle};
+byte swHold[3] = {00000000};
 
-char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
+Profiles activeProfile = Desktop;
+
+String decodeProfile(Profiles profile)
+{
+    switch (profile)
+    {
+    case Firefox:
+        return "Firefox";
+    case Reaper:
+        return "Reaper";
+    case DaVinci_Fairlight:
+        return "DaVinci - Fairlight";
+    case DaVinci_Colour:
+        return "DaVinci - Colour";
+    case DaVinci_Edit:
+        return "DaVinci - Edit";
+    case Unity:
+        return "Unity";
+    case Unreal:
+        return "Unreal";
+    case Blender:
+        return "Blender";
+    case Fusion:
+        return "Fusion 360";
+    case SketchUp:
+        return "SketchUp";
+    case File_Explorer:
+        return "File Explorer";
+    case Games:
+        return "Games";
+    case Graphic:
+        return "Graphic";
+    case Coding:
+        return "Coding";
+    case Desktop:
+        return "Desktop";
+    default:
+        return "Error";
+    }
+}
+
+uint32_t profilesColours[MAX_PROFILES][2] =
+    {
+        {0x7FF /*Cyan*/, 0x7E0 /*Green*/}};
+
+unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
     {
         {// Desktop
          {{KEY_LEFT_GUI, '2', 0 /*Control Center*/}, {KEY_LEFT_GUI, '7', 0 /*DaVinci*/}, {KEY_LEFT_GUI, '3', 0 /*Firefox*/}, {0, 0, 0 /*Games*/}, {0, 0, 0 /**/}, {0, 0, 0 /**/}, {KEY_LEFT_CTRL, KEY_LEFT_SHIFT, 'm' /*Spotify*/}},
@@ -86,61 +89,23 @@ char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
          {{0, 0, 0 /**/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 't' /*Titafall*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'h' /*Horizon*/}, {/**/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 's' /*Steam*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'c' /*Civilization*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'n' /*NMS*/}}},
 };
 
-char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
+unsigned char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
 
-char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
+unsigned char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
     {
         {// Desktop
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F1, 0 /*Screen Off*/}, {KEY_RIGHT_ALT, KEY_F10, 0 /*Play/Pause*/}, {/**/}, {/**/}},
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F6, 0 /*Lock*/}, {KEY_RIGHT_ALT, KEY_F7, 0 /*Mute*/}, {/**/}, {/**/}}},
 };
 
-char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+unsigned char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
     {// Desktop
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
-    {// Reaper
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Fairlight
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Colour
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Edit
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// Blender
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// VsCode
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
 };
 
-char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+unsigned char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
     {// Desktop
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
-    {// Reaper
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Fairlight
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Colour
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// DaVinci_Edit
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// Blender
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
-    {// VsCode
-     {{/**/}, {/**/}, {/**/}, {/**/}},
-     {{/**/}, {/**/}, {/**/}, {/**/}}},
 };
-
-#endif
