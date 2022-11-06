@@ -72,14 +72,14 @@ void handleEncoder(byte dir, uint16_t spd, byte id)
     {
         for (byte k = 0; k < MAX_MACRO; k++)
         {
-            Keyboard.press(re_macroSlow[activeProfile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
+            Keyboard.press(re_macroSlow[activeProfile][bitRead(swHold[2], id)][id][dir][k]);
         }
     }
     else
     {
         for (byte k = 0; k < MAX_MACRO; k++)
         {
-            Keyboard.press(re_macroFast[activeProfile][keyStates[3][id] == 0 ? 1 : 2][id][dir][k]);
+            Keyboard.press(re_macroFast[activeProfile][bitRead(swHold[2], id)][id][dir][k]);
         }
     }
 }

@@ -40,17 +40,16 @@ enum State
     released
 };
 
-extern State keyStates[3][7];
-extern State lastState[3][7];
 extern byte swHold[3];
 
-extern uint32_t profilesColours[MAX_PROFILES][2];
-extern unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO];
-extern unsigned char matrixHold[MAX_PROFILES][2][7][MAX_MACRO];
-extern unsigned char swBase[MAX_PROFILES][2][6][MAX_MACRO];
-extern unsigned char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO];
-extern unsigned char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO];
+extern const uint32_t profilesColours[MAX_PROFILES][2];
+extern const unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO];
+extern const unsigned char matrixHold[MAX_PROFILES][2][7][MAX_MACRO];
+extern const unsigned char swBase[MAX_PROFILES][2][6][MAX_MACRO];
+extern const unsigned char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO];
+extern const unsigned char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO];
 
 String decodeProfile(Profiles profile);
+void selectProfile(byte &modRow, byte &modCol);
 
 #endif

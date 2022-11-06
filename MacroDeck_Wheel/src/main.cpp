@@ -1,12 +1,5 @@
-#include <Adafruit_NeoPixel.h>
-
 #include <encoders.h>
 #include <switches.h>
-
-// LEDs
-#define LED_PIN 11
-#define LED_COUNT 20
-Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
@@ -25,5 +18,6 @@ void loop()
 
 ISR(PCINT0_vect)
 {
-    SW_awakenByInterrupt = true;
+    if (!digitalRead(SW_INT))
+        SW_awakenByInterrupt = true;
 }

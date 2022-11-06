@@ -18,12 +18,16 @@
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}},
 //  {{/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}, {/**/}}},
 
-State keyStates[3][7] = {idle};
-State lastState[3][7] = {idle};
 byte swHold[3] = {00000000};
 
 Profiles activeProfile = Desktop;
 
+/**
+ * @brief Return profile name as a String
+ *
+ * @param profile
+ * @return String - profile name
+ */
 String decodeProfile(Profiles profile)
 {
     switch (profile)
@@ -63,11 +67,11 @@ String decodeProfile(Profiles profile)
     }
 }
 
-uint32_t profilesColours[MAX_PROFILES][2] =
+const uint32_t profilesColours[MAX_PROFILES][2] =
     {
         {0x7FF /*Cyan*/, 0x7E0 /*Green*/}};
 
-unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
+const unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
     {
         {// Desktop
          {{KEY_LEFT_GUI, '2', 0 /*Control Center*/}, {KEY_LEFT_GUI, '7', 0 /*DaVinci*/}, {KEY_LEFT_GUI, '3', 0 /*Firefox*/}, {0, 0, 0 /*Games*/}, {0, 0, 0 /**/}, {0, 0, 0 /**/}, {KEY_LEFT_CTRL, KEY_LEFT_SHIFT, 'm' /*Spotify*/}},
@@ -89,23 +93,279 @@ unsigned char matrixBase[MAX_PROFILES][2][7][MAX_MACRO] =
          {{0, 0, 0 /**/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 't' /*Titafall*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'h' /*Horizon*/}, {/**/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 's' /*Steam*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'c' /*Civilization*/}, {KEY_LEFT_CTRL, KEY_LEFT_ALT, 'n' /*NMS*/}}},
 };
 
-unsigned char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
+const unsigned char matrixHold[MAX_PROFILES][2][7][MAX_MACRO] = {};
 
-unsigned char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
+const unsigned char swBase[MAX_PROFILES][2][6][MAX_MACRO] =
     {
         {// Desktop
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F1, 0 /*Screen Off*/}, {KEY_RIGHT_ALT, KEY_F10, 0 /*Play/Pause*/}, {/**/}, {/**/}},
          {{/**/}, {/**/}, {KEY_RIGHT_ALT, KEY_F6, 0 /*Lock*/}, {KEY_RIGHT_ALT, KEY_F7, 0 /*Mute*/}, {/**/}, {/**/}}},
 };
 
-unsigned char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+const unsigned char re_macroSlow[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
     {// Desktop
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
 };
 
-unsigned char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
+const unsigned char re_macroFast[MAX_PROFILES][2][MAX_RE][DIR][MAX_MACRO] = {
     {// Desktop
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F4}, {KEY_RIGHT_ALT, KEY_F3} /*Brightness +/- */}, {{KEY_RIGHT_ALT, KEY_F9}, {KEY_RIGHT_ALT, KEY_F8} /*Volume +/- */}},
      {{/**/}, {/**/}, {{KEY_RIGHT_ALT, KEY_F1}, {KEY_RIGHT_ALT, KEY_F6} /*Sleep/Lock*/}, {{KEY_RIGHT_ALT, KEY_F7}, {KEY_RIGHT_ALT, KEY_F12} /*Mute/Circle Sound Devices*/}}},
 };
+
+/**
+ * @brief Select new activeProfile according to held key and current profile
+ *
+ * @param modRow modifier row in swHold
+ * @param modCol modifier column in swHold
+ */
+void selectProfile(byte &modRow, byte &modCol)
+{
+    if (bitRead(swHold[modRow], modCol))
+    {
+        switch (modCol)
+        {
+        case 0:
+            if (!modRow)
+            {
+                /* code */
+            }
+            else
+            {
+                if (activeProfile == Desktop)
+                    activeProfile = File_Explorer;
+            }
+            break;
+
+        case 1:
+            if (!modRow)
+            {
+                if (activeProfile == Desktop)
+                    activeProfile = DaVinci_Edit;
+            }
+            else
+            {
+                if (activeProfile == Desktop)
+                    activeProfile = Coding;
+            }
+            break;
+
+        case 2:
+            if (!modRow)
+            {
+                if (activeProfile == Desktop)
+                    activeProfile = Firefox;
+            }
+            else
+            {
+                if (activeProfile == Desktop)
+                    activeProfile = Reaper;
+            }
+            break;
+
+        case 3:
+            if (!modRow)
+            {
+                switch (activeProfile)
+                {
+                case Desktop:
+                    activeProfile = Games;
+                    break;
+
+                case Graphic:
+                    activeProfile = SketchUp;
+                    break;
+
+                case Coding:
+                    activeProfile = KiCad;
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            else
+            {
+                if (activeProfile == Graphic)
+                    activeProfile = Fusion;
+            }
+            break;
+
+        case 4:
+            if (!modRow)
+            {
+                if (activeProfile == Graphic)
+                    activeProfile = Cinema4D;
+            }
+            else
+            {
+                switch (activeProfile)
+                {
+                case Desktop:
+                    activeProfile = Graphic;
+                    break;
+
+                case Graphic:
+                    activeProfile = Blender;
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            break;
+
+        case 5:
+            if (!modRow)
+            {
+                if (activeProfile == Graphic)
+                    activeProfile = Unity;
+            }
+            else
+            {
+                if (activeProfile == Graphic)
+                    activeProfile = Unreal;
+            }
+            break;
+
+        case 6:
+            if (!modRow)
+            {
+                if (activeProfile == Graphic)
+                    activeProfile = TouchDesigner;
+            }
+            else
+            {
+                /*code*/
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch (modCol)
+        {
+        case 0:
+            if (!modRow)
+            {
+                /* code */
+            }
+            else
+            {
+                if (activeProfile == File_Explorer)
+                    activeProfile = Desktop;
+            }
+            break;
+
+        case 1:
+            if (!modRow)
+            {
+                if (activeProfile == DaVinci_Edit)
+                    activeProfile = Desktop;
+            }
+            else
+            {
+                if (activeProfile == Coding)
+                    activeProfile = Desktop;
+            }
+            break;
+
+        case 2:
+            if (!modRow)
+            {
+                if (activeProfile == Firefox)
+                    activeProfile = Desktop;
+            }
+            else
+            {
+                if (activeProfile == Reaper)
+                    activeProfile = Desktop;
+            }
+            break;
+
+        case 3:
+            if (!modRow)
+            {
+                switch (activeProfile)
+                {
+                case Games:
+                    activeProfile = Desktop;
+                    break;
+
+                case SketchUp:
+                    activeProfile = Graphic;
+                    break;
+
+                case KiCad:
+                    activeProfile = Coding;
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            else
+            {
+                if (activeProfile == Fusion)
+                    activeProfile = Graphic;
+            }
+            break;
+
+        case 4:
+            if (!modRow)
+            {
+                if (activeProfile == Cinema4D)
+                    activeProfile = Graphic;
+            }
+            else
+            {
+                switch (activeProfile)
+                {
+                case Graphic:
+                    activeProfile = Desktop;
+                    break;
+
+                case Blender:
+                    activeProfile = Graphic;
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            break;
+
+        case 5:
+            if (!modRow)
+            {
+                if (activeProfile == Unity)
+                    activeProfile = Graphic;
+            }
+            else
+            {
+                if (activeProfile == Unreal)
+                    activeProfile = Graphic;
+            }
+            break;
+
+        case 6:
+            if (!modRow)
+            {
+                if (activeProfile == TouchDesigner)
+                    activeProfile = Graphic;
+            }
+            else
+            {
+                /*code*/
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+}

@@ -3,7 +3,6 @@
 
 // mcp 23017 over I2C
 #define SW_ADDR 0x20
-#define SW_INT 8 // Arduino PCint pin
 Adafruit_MCP23X17 sw;
 
 // Independent switches
@@ -17,20 +16,12 @@ Adafruit_MCP23X17 sw;
 // Matrix
 #define ROWS 2
 #define COLS 7
-const byte rowPins[ROWS] = {9, 10};                    // pin 2,3
-const byte colPins[COLS] = {11, 14, 15, 8, 12, 13, 0}; // pin 4,7,8,1,5,6,21
 
 // Keys
-/* Switches' bitMap layout - 7 -> 0
- * SW13 | SW11 | SW9  | SW7 | SW5 | SW3 | SW1
- * SW14 | SW12 | SW10 | SW8 | SW6 | SW4 | SW2
- */
-byte bitMap[2];
-byte modRow = 0;
-byte modCol = 0;
+State lastState[3][7] = {idle};
 
 // Timers
-unsigned long startTime;
+unsigned long lastTime;
 const int debounceTime = 10;
 const int shortPress = 500;
 const int longPress = 1000;
@@ -42,13 +33,15 @@ volatile bool SW_awakenByInterrupt = false;
 
 /**
  * @brief Init mcp, SW_matrix, RE_switches, T_switches & respective mcp interrupts
- *
  */
 void sw_begin()
 {
     sw.begin_I2C(SW_ADDR);
 
     // init matrix
+    const byte rowPins[ROWS] = {9, 10};                    // pin 2,3
+    const byte colPins[COLS] = {11, 14, 15, 8, 12, 13, 0}; // pin 4,7,8,1,5,6,21
+
     for (byte r = 0; r < ROWS; r++)
     {
         sw.pinMode(rowPins[r], INPUT_PULLUP);
@@ -60,8 +53,8 @@ void sw_begin()
 
     // use SW_INT as interrupt pin
     pinMode(SW_INT, INPUT_PULLUP);
-    PCICR |= (1 << PCIE0);
-    PCMSK0 |= (1 << PCINT4);
+    PCICR |= B00000001;
+    PCMSK0 |= B00010000;
 
     // init interrupt on change for R_SW_# and SW_15/16
     sw.setupInterrupts(false, false, LOW);
@@ -71,27 +64,30 @@ void sw_begin()
 
     for (byte s = 0; s < 4; s++)
     {
-        sw.pinMode(rSwitches[s], INPUT);
-        sw.setupInterruptPin(rSwitches[s], CHANGE);
+        sw.pinMode(rSwitches[s], INPUT_PULLUP);
+        sw.setupInterruptPin(rSwitches[s], LOW);
     }
     for (byte s = 0; s < 2; s++)
     {
-        sw.pinMode(tSwitches[s], INPUT);
-        sw.setupInterruptPin(tSwitches[s], CHANGE);
+        sw.pinMode(tSwitches[s], INPUT_PULLUP);
+        sw.setupInterruptPin(tSwitches[s], LOW);
     }
     sw.clearInterrupts();
 
     Keyboard.begin();
 
-    startTime = 0;
+    lastTime = 0;
 }
 
 /**
  * @brief Pulse each column and store ALL keys in bitmap
- *
+ * @param bitMap[] bitMap array to store current pinStates
  */
-void scanKeys()
+void scanKeys(byte *bitMap)
 {
+    const byte rowPins[ROWS] = {9, 10};                    // pin 2,3
+    const byte colPins[COLS] = {11, 14, 15, 8, 12, 13, 0}; // pin 4,7,8,1,5,6,21
+
     for (byte c = 0; c < COLS; c++)
     {
         sw.digitalWrite(colPins[c], LOW);
@@ -111,16 +107,18 @@ void scanKeys()
  * @param closed HIGH/LOW - switch state
  * @param c key column in bitmap
  * @param r key row in bitmap
+ * @param keyStates[][7] states array
  * @return true/false - whether the key state changed
  */
-bool handleState(bool closed, const byte &c, const byte &r)
+bool handleState(bool closed, const byte &c, const byte &r, State (*keyStates)[7])
 {
-    switch (keyStates[r][c])
+    switch (lastState[r][c])
     {
     case idle:
         if (closed)
         {
             keyStates[r][c] = pressed;
+            lastState[r][c] = keyStates[r][c];
             holdTimer = millis();
             return true;
         }
@@ -130,11 +128,13 @@ bool handleState(bool closed, const byte &c, const byte &r)
         if ((millis() - holdTimer) > shortPress)
         {
             keyStates[r][c] = hold;
+            lastState[r][c] = keyStates[r][c];
             return true;
         }
         else if (!closed)
         {
             keyStates[r][c] = released;
+            lastState[r][c] = keyStates[r][c];
             return true;
         }
         break;
@@ -143,11 +143,13 @@ bool handleState(bool closed, const byte &c, const byte &r)
         if ((millis() - holdTimer) > longPress)
         {
             keyStates[r][c] = longHold;
+            lastState[r][c] = keyStates[r][c];
             return true;
         }
         else if (!closed)
         {
             keyStates[r][c] = released;
+            lastState[r][c] = keyStates[r][c];
             return true;
         }
         break;
@@ -156,6 +158,7 @@ bool handleState(bool closed, const byte &c, const byte &r)
         if (!closed)
         {
             keyStates[r][c] = released;
+            lastState[r][c] = keyStates[r][c];
             return true;
         }
         break;
@@ -172,10 +175,11 @@ bool handleState(bool closed, const byte &c, const byte &r)
 
 /**
  * @brief calls handleState() for each key in the matrix
- * @return true/false - whether any state change occurred
  *
+ * @param keyStates[][7] states array
+ * @return true/false - whether any state change occurred
  */
-bool updateStates()
+bool updateStates(byte *bitMap, State (*keyStates)[7])
 {
     bool anyActivity = false;
 
@@ -183,7 +187,7 @@ bool updateStates()
     {
         for (byte r = 0; r < ROWS; r++)
         {
-            bool activity = handleState(bitRead(bitMap[r], c), c, r);
+            bool activity = handleState(bitRead(bitMap[r], c), c, r, keyStates);
             if (!anyActivity && activity)
                 anyActivity = true;
         }
@@ -194,328 +198,45 @@ bool updateStates()
 
 /**
  * @brief Scan matrix if enough time passed since last scan (debounce), then call updateStates()
- * @return true/false - whether at leas one state change occurred
  *
+ * @param KeyStates[][7] states array
+ * @return true/false - whether at leas one state change occurred
  */
-bool getKeys()
+bool getKeys(State (*keyStates)[7])
 {
+    /* Switches' bitMap layout - 7 -> 0
+     * SW13 | SW11 | SW9  | SW7 | SW5 | SW3 | SW1
+     * SW14 | SW12 | SW10 | SW8 | SW6 | SW4 | SW2
+     */
+    byte bitMap[2]{};
     bool keyActivity = false;
 
     // Limit how often the matrix is scanned. It makes the loop() faster
-    if ((millis() - startTime) > debounceTime)
+    if ((millis() - lastTime) > debounceTime)
     {
-        scanKeys();
-        keyActivity = updateStates();
-        startTime = millis();
+        scanKeys(bitMap);
+        keyActivity = updateStates(bitMap, keyStates);
+        lastTime = millis();
     }
 
     return keyActivity;
 }
 
-// bool findMod(byte *row, byte *col)
-// {
-//     for (byte r = 0; r < 2; r++)
-//     {
-//         for (byte b = 0; b < 8; b++)
-//         {
-//             if (bitRead(swHold[r], b))
-//             {
-//                 *row = r;
-//                 *col = b;
-//                 return true;
-//             }
-//         }
-//     }
-// }
-
-/**
- * @brief Select new activeProfile according to held key and current profile
- *
- * @param modRow modifier row in swHold
- * @param modCol modifier column in swHold
- */
-void selectProfile(byte &modRow, byte &modCol)
-{
-    if (bitRead(swHold[modRow], modCol))
-    {
-        switch (modCol)
-        {
-        case 0:
-            if (!modRow)
-            {
-                /* code */
-            }
-            else
-            {
-                if (activeProfile == Desktop)
-                    activeProfile = File_Explorer;
-            }
-            break;
-
-        case 1:
-            if (!modRow)
-            {
-                if (activeProfile == Desktop)
-                    activeProfile = DaVinci_Edit;
-            }
-            else
-            {
-                if (activeProfile == Desktop)
-                    activeProfile = Coding;
-            }
-            break;
-
-        case 2:
-            if (!modRow)
-            {
-                if (activeProfile == Desktop)
-                    activeProfile = Firefox;
-            }
-            else
-            {
-                if (activeProfile == Desktop)
-                    activeProfile = Reaper;
-            }
-            break;
-
-        case 3:
-            if (!modRow)
-            {
-                switch (activeProfile)
-                {
-                case Desktop:
-                    activeProfile = Games;
-                    break;
-
-                case Graphic:
-                    activeProfile = SketchUp;
-                    break;
-
-                case Coding:
-                    activeProfile = KiCad;
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            else
-            {
-                if (activeProfile == Graphic)
-                    activeProfile = Fusion;
-            }
-            break;
-
-        case 4:
-            if (!modRow)
-            {
-                if (activeProfile == Graphic)
-                    activeProfile = Cinema4D;
-            }
-            else
-            {
-                switch (activeProfile)
-                {
-                case Desktop:
-                    activeProfile = Graphic;
-                    break;
-
-                case Graphic:
-                    activeProfile = Blender;
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            break;
-
-        case 5:
-            if (!modRow)
-            {
-                if (activeProfile == Graphic)
-                    activeProfile = Unity;
-            }
-            else
-            {
-                if (activeProfile == Graphic)
-                    activeProfile = Unreal;
-            }
-            break;
-
-        case 6:
-            if (!modRow)
-            {
-                if (activeProfile == Graphic)
-                    activeProfile = TouchDesigner;
-            }
-            else
-            {
-                /*code*/
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
-    else
-    {
-        switch (modCol)
-        {
-        case 0:
-            if (!modRow)
-            {
-                /* code */
-            }
-            else
-            {
-                if (activeProfile == File_Explorer)
-                    activeProfile = Desktop;
-            }
-            break;
-
-        case 1:
-            if (!modRow)
-            {
-                if (activeProfile == DaVinci_Edit)
-                    activeProfile = Desktop;
-            }
-            else
-            {
-                if (activeProfile == Coding)
-                    activeProfile = Desktop;
-            }
-            break;
-
-        case 2:
-            if (!modRow)
-            {
-                if (activeProfile == Firefox)
-                    activeProfile = Desktop;
-            }
-            else
-            {
-                if (activeProfile == Reaper)
-                    activeProfile = Desktop;
-            }
-            break;
-
-        case 3:
-            if (!modRow)
-            {
-                switch (activeProfile)
-                {
-                case Games:
-                    activeProfile = Desktop;
-                    break;
-
-                case SketchUp:
-                    activeProfile = Graphic;
-                    break;
-
-                case KiCad:
-                    activeProfile = Coding;
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            else
-            {
-                if (activeProfile == Fusion)
-                    activeProfile = Graphic;
-            }
-            break;
-
-        case 4:
-            if (!modRow)
-            {
-                if (activeProfile == Cinema4D)
-                    activeProfile = Graphic;
-            }
-            else
-            {
-                switch (activeProfile)
-                {
-                case Graphic:
-                    activeProfile = Desktop;
-                    break;
-
-                case Blender:
-                    activeProfile = Graphic;
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            break;
-
-        case 5:
-            if (!modRow)
-            {
-                if (activeProfile == Unity)
-                    activeProfile = Graphic;
-            }
-            else
-            {
-                if (activeProfile == Unreal)
-                    activeProfile = Graphic;
-            }
-            break;
-
-        case 6:
-            if (!modRow)
-            {
-                if (activeProfile == TouchDesigner)
-                    activeProfile = Graphic;
-            }
-            else
-            {
-                /*code*/
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
-}
-
 /**
  * @brief Call getKeys() and handle keys if any change occurred.
  * @note Keypresses are sent after release. This way press macros won't activate before press length is determined
- *
  */
 void handleMatrix()
 {
-    if (getKeys())
+    State keyStates[2][7] = {idle};
+    if (getKeys(keyStates))
     {
         for (byte c = 0; c < COLS; c++)
         {
             for (byte r = 0; r < ROWS; r++)
             {
-                switch (keyStates[r][c])
+                if (keyStates[r][c] == released)
                 {
-                case idle:
-                    lastState[r][c] = idle;
-                    break;
-
-                case pressed:
-                    lastState[r][c] = pressed;
-                    break;
-
-                case hold:
-                    lastState[r][c] = hold;
-                    break;
-
-                case longHold:
-                    lastState[r][c] = longHold;
-                    break;
-
-                case released:
                     switch (lastState[r][c])
                     {
                     case pressed:
@@ -544,10 +265,10 @@ void handleMatrix()
                         }
                         else
                         {
-                            byte mask = 00000000;
+                            byte mask = 0b00000000;
                             swHold[r ? 0 : 1] &= mask;
                             bitSet(mask, c);
-                            swHold[r] &= mask;
+                            swHold[r] = mask;
                         }
                         selectProfile(r, c);
                         break;
@@ -556,16 +277,11 @@ void handleMatrix()
                         break;
                     }
                     lastState[r][c] = released;
-                    break;
-
-                default:
-                    break;
                 }
             }
         }
     }
 }
-
 // ?? can pass by ref be used here?
 // ?? sw.getCapturedInterrupt() might be more appropriate, but I'm not sure how to select the correct pin
 /**
@@ -576,9 +292,10 @@ void handleMatrix()
  */
 void handleSwitch(int pin, int id)
 {
-    if (handleState(sw.digitalRead(pin), id, 2))
+    State swState[1][7] = {idle};
+    if (handleState(!sw.digitalRead(pin), id, 2, swState))
     {
-        switch (keyStates[2][id])
+        switch (swState[2][id])
         {
         case idle:
             lastState[2][id] = idle;
@@ -621,7 +338,6 @@ void handleSwitch(int pin, int id)
 
 /**
  * @brief If an interrupt occurred, call handleSwitch() for the key that caused the interrupt
- *
  */
 void handleSwitches()
 {
