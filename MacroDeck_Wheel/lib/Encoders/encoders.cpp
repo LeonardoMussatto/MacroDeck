@@ -48,6 +48,7 @@ void re_begin()
     re.setupInterrupts(false, false, LOW);
 
     // arduino interrupt setup
+    pinMode(RE_INT, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
 
     // init MCP pins as inputs and interrupts on change
@@ -112,13 +113,11 @@ void handleEncoders()
     {
         detachInterrupt(digitalPinToInterrupt(RE_INT));
         selectEncoder();
+        attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
     }
 
     /* Not optimal position, but it seems the only way to make it work
      * Before reattaching in order to avoid clearing a new interrupt
      */
     re.clearInterrupts();
-
-    if (RE_awakenByInterrupt)
-        attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
 }
