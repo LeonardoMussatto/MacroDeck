@@ -90,7 +90,7 @@ void MD_REncoder_MCP::begin(Adafruit_MCP23X08 &mcp)
   mcp.pinMode(_pinA, INPUT_PULLUP);
   mcp.pinMode(_pinB, INPUT_PULLUP);
   mcp.setupInterruptPin(_pinA, LOW);
-  mcp.setupInterruptPin(_pinA, LOW);
+  mcp.setupInterruptPin(_pinB, LOW);
 }
 
 uint8_t MD_REncoder_MCP::read(Adafruit_MCP23X08 &mcp)
