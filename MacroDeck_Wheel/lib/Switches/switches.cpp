@@ -6,16 +6,16 @@
 Adafruit_MCP23X17 sw;
 
 // Independent switches
-#define SW_15 5  // pin 26
-#define SW_16 6  // pin 27
-#define R_SW_1 4 // pin 25
-#define R_SW_2 7 // pin 28
-#define R_SW_3 3 // pin 24
-#define R_SW_4 2 // pin 23
+const byte SW_15 = 5;  // pin 26
+const byte SW_16 = 6;  // pin 27
+const byte R_SW_1 = 4; // pin 25
+const byte R_SW_2 = 7; // pin 28
+const byte R_SW_3 = 3; // pin 24
+const byte R_SW_4 = 2; // pin 23
 
 // Matrix
-#define ROWS 2
-#define COLS 7
+const byte ROWS = 2;
+const byte COLS = 7;
 
 // Keys
 State lastState[3][7] = {idle};
@@ -88,16 +88,16 @@ void scanKeys(byte *bitMap)
     const byte rowPins[ROWS] = {9, 10};                    // pin 2,3
     const byte colPins[COLS] = {11, 14, 15, 8, 12, 13, 0}; // pin 4,7,8,1,5,6,21
 
-    for (byte c = 0; c < COLS; c++)
+    for (byte r = 0; r < ROWS; r++)
     {
-        sw.digitalWrite(colPins[c], LOW);
+        sw.digitalWrite(rowPins[r], LOW);
 
-        for (byte r = 0; r < ROWS; r++)
+        for (byte c = 0; c < COLS; c++)
         {
-            bitWrite(bitMap[r], c, !sw.digitalRead(rowPins[r])); // keypress is active low so invert to high.
+            bitWrite(bitMap[r], c, !sw.digitalRead(colPins[c])); // keypress is active low so invert to high.
         }
 
-        sw.digitalWrite(colPins[c], HIGH);
+        sw.digitalWrite(rowPins[r], HIGH);
     }
 }
 

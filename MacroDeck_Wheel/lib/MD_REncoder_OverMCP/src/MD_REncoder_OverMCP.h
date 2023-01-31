@@ -1,5 +1,5 @@
 /**
-\mainpage Main Page
+- \mainpage Main Page
 Rotary Encoder Library for Arduino
 ----------------------------------
 
@@ -55,7 +55,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-\page pageBackground Detecting an Encoder's Rotation
+- \page pageBackground Detecting an Encoder's Rotation
 _This great explanation is reproduced from Ben Buxton's example code._
 
 A typical mechanical rotary encoder emits a two bit gray code on 3 output pins.
@@ -109,7 +109,7 @@ can be accurately measured. Another advantage is the ability to properly handle 
 state, such as due to EMI, etc. It is also a lot simpler than others - a static
 state table and less than 10 lines of logic.
 
-\page pageLibrary The REncoder Library
+- \page pageLibrary The REncoder Library
 
 Compile Time Switches
 ---------------------

@@ -5,20 +5,22 @@
 #include <Adafruit_MCP23X08.h>
 #include <MD_REncoder_OverMCP.h>
 
-#define RE_INT 7
+const byte RE_INT = 7;
+
 #define RE_ADDR 0x21
 Adafruit_MCP23X08 re;
 
-#define RE_1A 1
-#define RE_1B 0
-#define RE_2A 3
-#define RE_2B 2
-#define RE_3A 6
-#define RE_3B 7
-#define RE_4A 4
-#define RE_4B 5
+const byte RE_1A = 1;
+const byte RE_1B = 0;
+const byte RE_2A = 3;
+const byte RE_2B = 2;
+const byte RE_3A = 6;
+const byte RE_3B = 7;
+const byte RE_4A = 4;
+const byte RE_4B = 5;
 
-#define FAST 100
+const byte FAST = 100;
+
 MD_REncoder_MCP R1 = MD_REncoder_MCP(RE_1A, RE_1B);
 MD_REncoder_MCP R2 = MD_REncoder_MCP(RE_2A, RE_2B);
 MD_REncoder_MCP R3 = MD_REncoder_MCP(RE_3A, RE_3B);
@@ -110,14 +112,6 @@ void selectEncoder()
 void handleEncoders()
 {
     if (RE_awakenByInterrupt)
-    {
-        detachInterrupt(digitalPinToInterrupt(RE_INT));
         selectEncoder();
-        attachInterrupt(digitalPinToInterrupt(RE_INT), RE_intCallBack, FALLING);
-    }
-
-    /* Not optimal position, but it seems the only way to make it work
-     * Before reattaching in order to avoid clearing a new interrupt
-     */
     re.clearInterrupts();
 }

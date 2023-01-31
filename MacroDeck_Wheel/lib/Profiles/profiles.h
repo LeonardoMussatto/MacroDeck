@@ -2,11 +2,11 @@
 #define PROFILES_H
 #include <Keyboard.h>
 
-#define MAX_PROFILES 7
-#define ALT_PROFILES 1
-#define MAX_MACRO 3
-#define MAX_RE 4
-#define DIR 2
+const byte MAX_PROFILES = 7;
+const byte ALT_PROFILES = 1;
+const byte MAX_MACRO = 3;
+const byte MAX_RE = 4;
+const byte DIR = 2;
 
 enum Profiles
 {
