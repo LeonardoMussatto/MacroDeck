@@ -16,6 +16,7 @@ const byte R_SW_4 = 2; // pin 23
 // Matrix
 const byte ROWS = 2;
 const byte COLS = 7;
+const byte MAX_MACRO = 3;
 
 // Keys
 State lastState[3][7] = {idle};
@@ -24,7 +25,7 @@ State lastState[3][7] = {idle};
 unsigned long lastTime;
 const int debounceTime = 10;
 const int shortPress = 500;
-const int longPress = 1000;
+// const int longPress = 1000;
 unsigned long holdTimer;
 
 volatile bool SW_awakenByInterrupt = false;
@@ -154,14 +155,14 @@ bool handleState(bool closed, const byte &c, const byte &r, State (*keyStates)[7
         }
         break;
 
-    case longHold:
-        if (!closed)
-        {
-            keyStates[r][c] = released;
-            lastState[r][c] = keyStates[r][c];
-            return true;
-        }
-        break;
+    // case longHold:
+    //     if (!closed)
+    //     {
+    //         keyStates[r][c] = released;
+    //         lastState[r][c] = keyStates[r][c];
+    //         return true;
+    //     }
+    //     break;
 
     case released:
         keyStates[r][c] = idle;
@@ -229,6 +230,10 @@ bool getKeys(State (*keyStates)[7])
 void handleMatrix()
 {
     State keyStates[2][7] = {idle};
+    const unsigned char matrixBase[2][7][MAX_MACRO] = {
+        {{KEY_F13, 0, 0}, {KEY_F15, 0, 0}, {KEY_F17, 0, 0}, {KEY_F19, 0, 0}, {KEY_F21, 0, 0}, {KEY_F23, 0, 0}, {KEY_LEFT_CTRL, KEY_F13, 0}},
+        {{KEY_F14, 0, 0}, {KEY_F16, 0, 0}, {KEY_F18, 0, 0}, {KEY_F20, 0, 0}, {KEY_F22, 0, 0}, {KEY_F24, 0, 0}, {KEY_LEFT_CTRL, KEY_F14, 0}}};
+
     if (getKeys(keyStates))
     {
         for (byte c = 0; c < COLS; c++)
@@ -242,7 +247,7 @@ void handleMatrix()
                     case pressed:
                         for (byte k = 0; k < MAX_MACRO; k++)
                         {
-                            Keyboard.press(matrixBase[activeProfile][r][c][k]);
+                            Keyboard.press(matrixBase[r][c][k]);
                         }
                         Keyboard.releaseAll();
                         break;
@@ -250,28 +255,27 @@ void handleMatrix()
                     case hold:
                         for (byte k = 0; k < MAX_MACRO; k++)
                         {
-                            Keyboard.press(matrixHold[activeProfile][r][c][k]);
+                            Keyboard.press(matrixHold[r][c][k]);
                         }
                         Keyboard.releaseAll();
                         break;
 
-                    case longHold:
-                        if (bitRead(swHold[r], c))
-                        {
-                            for (byte s = 0; s < 2; s++)
-                            {
-                                swHold[s] &= 0b00000000;
-                            }
-                        }
-                        else
-                        {
-                            byte mask = 0b00000000;
-                            swHold[r ? 0 : 1] &= mask;
-                            bitSet(mask, c);
-                            swHold[r] = mask;
-                        }
-                        selectProfile(r, c);
-                        break;
+                    // case longHold:
+                    //     if (bitRead(swHold[r], c))
+                    //     {
+                    //         for (byte s = 0; s < 2; s++)
+                    //         {
+                    //             swHold[s] &= 0b00000000;
+                    //         }
+                    //     }
+                    //     else
+                    //     {
+                    //         byte mask = 0b00000000;
+                    //         swHold[r ? 0 : 1] &= mask;
+                    //         bitSet(mask, c);
+                    //         swHold[r] = mask;
+                    //     }
+                    //     break;
 
                     default:
                         break;
@@ -293,6 +297,11 @@ void handleMatrix()
 void handleSwitch(int pin, int id)
 {
     State swState[1][7] = {idle};
+    const unsigned char swBase[2][6][MAX_MACRO] = {
+        {{KEY_LEFT_CTRL, KEY_F15, 0}, {KEY_LEFT_CTRL, KEY_F16, 0}, {KEY_LEFT_CTRL, KEY_F17, 0}, {KEY_LEFT_CTRL, KEY_F18, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F15}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F16}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F17}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F18}, {0, 0, 0}, {0, 0, 0}}
+    };
+
     if (handleState(!sw.digitalRead(pin), id, 2, swState))
     {
         switch (swState[2][id])
@@ -315,7 +324,7 @@ void handleSwitch(int pin, int id)
             case pressed:
                 for (byte k = 0; k < MAX_MACRO; k++)
                 {
-                    Keyboard.press(swBase[activeProfile][bitRead(swHold[2], id)][id][k]);
+                    Keyboard.press(swBase[bitRead(swHold[2], id)][id][k]);
                 }
                 Keyboard.releaseAll();
                 break;
