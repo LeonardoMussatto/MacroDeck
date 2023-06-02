@@ -45,18 +45,18 @@ String decodeProfile(Profiles profile)
         return "Premiere Pro"
     case TouchDesigner:
         return "TouchDesigner";
-    case Unreal:
-        return "Unreal";
+    // case Unreal:
+    //     return "Unreal";
     case Blender:
         return "Blender";
-    case Fusion:
-        return "Fusion 360";
+    // case Fusion:
+    //     return "Fusion 360";
     case SketchUp:
         return "SketchUp";
     case File_Explorer:
         return "File Explorer";
-    case Games:
-        return "Games";
+    // case Games:
+    //     return "Games";
     case Graphic:
         return "Graphic";
     case Coding:

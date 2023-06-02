@@ -17,9 +17,7 @@ enum Profiles
     DaVinci_Edit,
     PremierePro,
     Blender,
-    Unreal,
     SketchUp,
-    Fusion,
     TouchDesigner,
     File_Explorer,
 };

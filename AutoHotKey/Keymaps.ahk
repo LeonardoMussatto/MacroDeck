@@ -1,17 +1,17 @@
-﻿; #Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir ; Ensures a consistent starting directory.
+;ALERT Ted Burke's SerialSend.exe needs to be placed in working directory OR the path needs to be included when running CMD - https://batchloaf.wordpress.com/serialsend/
 A_MenuMaskKey := "vkFF" ; vkFF is no mapping.
 
-global Desktop := 0
-global Graphic := 1
-global Coding := 2
-global Explorer := 3 
 ;global IsGames := 4
-global ActivePage := Desktop
+global ActivePage := "Desktop"
+global LastProcess := ""
 global PassThrough := False
 global OnTop := False
 
+profiles_process := ["firefox.exe","reaper.exe", "Resolve.exe", "Adobe Premiere Pro.exe", "blender-launcher.exe", "SketchUp.exe", "TouchDesigner.exe", "explorer.exe"]
+profiles_name := ["Firefox", "Reaper", "DaVinci", "PremierePro", "Blender", "SketchUp", "TouchDesigner", "Explorer"]
 ;TODO Profiles
     ;Desktop,
     ;Graphic,
@@ -42,29 +42,43 @@ global OnTop := False
 GroupAdd "Coding", "ahk_exe Code.exe"
 GroupAdd "Coding", "ahk_exe Arduino IDE.exe"
 
-CheckWindow()
-{
+CheckProfile(){
     global
     if OnTop {
-        if PassThrough
-            ActivePage := 100
-        else
+        if PassThrough{
+            arduino_updateProfile("PassThrough")
+            ActivePage := "100"
+        }else
             return
+
     } else if WinActive("ahk_group Profiles") {
-        if WinActive("ahk_group Coding")
-            ActivePage := Coding
-        else if WinActive("ahk_exe explorer.exe")
-            ActivePage := Explorer
-        else
-            ActivePage := 100
+        
+        if WinGetProcessName() !== LastProcess {
+            LastProcess := WinGetProcessName("A")
+            
+            if WinActive("ahk_group Coding"){
+                arduino_updateProfile("Coding")
+                ActivePage := "Coding"
+            } else {
+                for i, p in profiles_process
+                    if LastProcess == p {
+                        arduino_updateProfile(profiles_name[i])
+                        ActivePage := profiles_name[i]
+                        break
+                    }
+            }
+        }
     } else {
-        ActivePage := Desktop
+        if ActivePage !== "Desktop" {
+            ; LastProcess := WinGetProcessName()
+            arduino_updateProfile("Desktop")
+            ActivePage := "Desktop"
+        }
     }
 }
-SetTimer CheckWindow, 500
+SetTimer CheckProfile, 100
 
-ToggleWindow(WinTitle, PathToExe)
-{
+ToggleWindow(WinTitle, PathToExe){
     if WinExist(WinTitle)
     {
         if WinActive()
@@ -75,22 +89,38 @@ ToggleWindow(WinTitle, PathToExe)
         Run PathToExe
 }
 
+arduino_updateProfile(profile){
+    switch profile{
+        case "Desktop":
+            Run A_ComSpec ' /k SerialSend.exe "<pDesktop>"',,"Hide"
+        case "Graphic":
+            Run A_ComSpec ' /k SerialSend.exe "<pGraphic>"',,"Hide"
+        case "Coding":
+            Run A_ComSpec ' /k SerialSend.exe "<pCoding>"',,"Hide"
+        case "Firefox":
+            Run A_ComSpec ' /k SerialSend.exe "<pFirefox>"',,"Hide"
+        case "Reaper":
+            Run A_ComSpec ' /k SerialSend.exe "<pReaper>"',,"Hide"
+        case "DaVinci":
+            Run A_ComSpec ' /k SerialSend.exe "<pDaVinci>"',,"Hide"
+        case "PremierePro":
+            Run A_ComSpec ' /k SerialSend.exe "<pPremierePro>"',,"Hide"
+        case "Blender":
+            Run A_ComSpec ' /k SerialSend.exe "<pBlender>"',,"Hide"
+        case "SketchUp":
+            Run A_ComSpec ' /k SerialSend.exe "<pSketchUp>"',,"Hide"
+        case "TouchDesigner":
+            Run A_ComSpec ' /k SerialSend.exe "<pTouchDesigner>"',,"Hide"
+        case "Explorer":
+            Run A_ComSpec ' /k SerialSend.exe "<pExplorer>"',,"Hide"
+        case "PassThrough":
+            Run A_ComSpec ' /k SerialSend.exe "<pPassThrough>"',,"Hide"
+        
+    }
+}
+
 ;Base
-    +F23:: {
-            global
-            switch ActivePage{
-                case Desktop:
-                    MsgBox "Active Page: Desktop `n`OnTop: " OnTop
-                case Graphic:
-                    MsgBox "Active Page: Graphic `n`OnTop: " OnTop
-                case Coding:
-                    MsgBox "Active Page: Coding `n`OnTop: " OnTop
-                case Explorer:
-                    MsgBox "Active Page: Explorer `n`OnTop: " OnTop
-                default:
-                    MsgBox "Active Page: Other `n`OnTop: " OnTop
-            }
-        }
+    F12:: MsgBox "Active Page: " ActivePage "`n`OnTop: " OnTop "`n`WindowProcess: " WinGetProcessName("A")
     ^F23:: global OnTop := !OnTop
     ;Encoder_Switches
     ; ^F15::  return
@@ -154,24 +184,24 @@ ToggleWindow(WinTitle, PathToExe)
     ^F14:: Send "^q" ;Quit
 
 ;Desktop
-#HotIf ActivePage = Desktop
+#HotIf ActivePage == "Desktop"
     ;Swithces
-    F13:: global ActivePage := Explorer
+    F13:: global ActivePage := "Explorer"
     F14:: ToggleWindow("ahk_exe reaper.exe", A_ProgramFiles "\REAPER (x64)\reaper.exe")
     F15:: ToggleWindow("ahk_exe Resolve.exe", A_ProgramFiles "\Blackmagic Design\DaVinci Resolve\Resolve.exe")
     F16:: ToggleWindow("ahk_exe TouchDesigner.exe", A_ProgramFiles "\Derivative\TouchDesigner\bin\TouchDesigner.exe")
     F17:: ToggleWindow("ahk_exe Code.exe", A_ProgramFiles "\Microsoft VS Code\Code.exe")
     F18:: ToggleWindow("ahk_exe firefox.exe", A_ProgramFiles "\Firefox Developer Edition\firefox.exe")
     F19:: Send "#2" ;Control Center
-    F20:: global ActivePage := Graphic
-    F21:: global ActivePage := Coding
+    F20:: global ActivePage := "Graphic"
+    F21:: global ActivePage := "Coding"
     ; F22:: return
     ; F23:: return
     ; F24:: return
     ; ^F13:: return
     ^F14:: Run A_AppData "\Spotify\Spotify.exe"
 
-#HotIf ActivePage = Explorer
+#HotIf ActivePage == "Explorer"
     ;Switches
     F13:: { ;File Explorer
         if WinExist("ahk_exe explorer.exe")
@@ -189,7 +219,7 @@ ToggleWindow(WinTitle, PathToExe)
     F16:: Run "D:\Downloads"
     F17:: Run "D:\Documents"
     F18:: Run "D:\Projects"
-    F19:: global ActivePage := Desktop
+    F19:: global ActivePage := "Desktop"
     F20:: Send "^{Space}" ;Preview
     F21:: Send "!{Enter}" ;Properties
     F22:: Send "{F2}" ;Rename
@@ -208,7 +238,7 @@ ToggleWindow(WinTitle, PathToExe)
     >!+F16:: Send "^{Tab}" ;Next Tab
     <!+F16:: Send "^+{Tab}" ;Prev Tab
 
-#HotIf ActivePage = Graphic
+#HotIf ActivePage == "Graphic"
     ;Switches
     ^F12:: ToggleWindow("ahk_exe kicad.exe", A_ProgramFiles "\KiCad\6.0\bin\kicad.exe")
     F14:: ToggleWindow("ahk_exe FusionLauncher.exe", "C:\Users\" A_UserName "\AppData\Local\Autodesk\webdeploy\production\6a0c9611291d45bb9226980209917c3d\FusionLauncher.exe")
@@ -218,7 +248,7 @@ ToggleWindow(WinTitle, PathToExe)
     F18:: ToggleWindow("ahk_exe TouchDesigner.exe", A_ProgramFiles "\Derivative\TouchDesigner\bin\TouchDesigner.exe")
     F19:: ToggleWindow("ahk_exe lightroom.exe", A_ProgramFiles "\Adobe\Adobe Lightroom CC\lightroom.exe")
     F20:: ToggleWindow("ahk_exe Illustrator.exe", A_ProgramFiles "\Adobe\Adobe Illustrator 2023\Support Files\Contents\Windows\Illustrator.exe")
-    F21:: global ActivePage := Desktop
+    F21:: global ActivePage := "Desktop"
     F22:: ToggleWindow("ahk_exe Adobe Media Encoder.exe", A_ProgramFiles "\Adobe\Adobe Media Encoder 2023\Adobe Media Encoder.exe")
     F23:: ToggleWindow("ahk_exe Adobe Premiere Pro.exe", A_ProgramFiles "\Adobe\Adobe Premiere Pro 2023\Adobe Premiere Pro.exe")
     F24:: ToggleWindow("ahk_exe Resolve.exe", A_ProgramFiles "\Blackmagic Design\DaVinci Resolve\Resolve.exe")
@@ -226,7 +256,7 @@ ToggleWindow(WinTitle, PathToExe)
     ^F14:: return
     
 ;VsCode | Arduino | Coding
-#HotIf ActivePage = Coding
+#HotIf ActivePage == "Coding"
     ;Switches
     F13:: { ;Terminal
         Send "#r"
@@ -240,7 +270,7 @@ ToggleWindow(WinTitle, PathToExe)
     F16:: Send "^{F2}" ;Select all occurences of current word
     F17:: Send "!{F12}" ;Peek Definition
     F18:: Send "^!f" ;Format Code
-    F19:: global ActivePage := Desktop
+    F19:: global ActivePage := "Desktop"
     F20:: return
     F21:: ToggleWindow("ahk_exe Arduino IDE.exe", A_ProgramFiles "\Arduino\Arduino IDE\Arduino IDE.exe")
     F22:: Send "^+g" ;Git
