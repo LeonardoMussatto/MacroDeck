@@ -9,6 +9,8 @@ const byte RE_INT = 7;
 const byte MAX_RE = 4;
 const byte DIR = 2;
 
+#define RE_DEBUG 0
+
 #define RE_ADDR 0x21
 Adafruit_MCP23X08 re;
 
@@ -74,29 +76,59 @@ void re_begin()
 void handleEncoder(byte dir, uint16_t spd, byte id)
 {
     const unsigned char re_macroSlow[2][MAX_RE][DIR][2] = {
-     {{{KEY_RIGHT_ALT, KEY_F15}, {KEY_LEFT_ALT, KEY_F15}}, {{KEY_RIGHT_ALT, KEY_F16}, {KEY_LEFT_ALT, KEY_F16}}, {{KEY_RIGHT_ALT, KEY_F17}, {KEY_LEFT_ALT, KEY_F17}}, {{KEY_RIGHT_ALT, KEY_F18}, {KEY_LEFT_ALT, KEY_F18}}},
-     {{{KEY_RIGHT_ALT, KEY_F19}, {KEY_LEFT_ALT, KEY_F19}}, {{KEY_RIGHT_ALT, KEY_F20}, {KEY_LEFT_ALT, KEY_F20}}, {{KEY_RIGHT_ALT, KEY_F21}, {KEY_LEFT_ALT, KEY_F21}}, {{KEY_RIGHT_ALT, KEY_F22}, {KEY_LEFT_ALT, KEY_F22}}}
-    };
-    const unsigned char re_macroFast[2][MAX_RE][DIR][2] = {
-     {{{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F15}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F15}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F16}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F16}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F17}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F17}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F18}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F18}}},
-     {{{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F19}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F19}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F20}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F20}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F21}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F21}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F22}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F22}}}
-    };
+        {{{KEY_RIGHT_ALT, KEY_F15}, {KEY_LEFT_ALT, KEY_F15}}, {{KEY_RIGHT_ALT, KEY_F16}, {KEY_LEFT_ALT, KEY_F16}}, {{KEY_RIGHT_ALT, KEY_F17}, {KEY_LEFT_ALT, KEY_F17}}, {{KEY_RIGHT_ALT, KEY_F18}, {KEY_LEFT_ALT, KEY_F18}}},
+        {{{KEY_RIGHT_ALT, KEY_F19}, {KEY_LEFT_ALT, KEY_F19}}, {{KEY_RIGHT_ALT, KEY_F20}, {KEY_LEFT_ALT, KEY_F20}}, {{KEY_RIGHT_ALT, KEY_F21}, {KEY_LEFT_ALT, KEY_F21}}, {{KEY_RIGHT_ALT, KEY_F22}, {KEY_LEFT_ALT, KEY_F22}}}};
+    const unsigned char re_macroFast[2][MAX_RE][DIR][3] = {
+        {{{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F15}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F15}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F16}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F16}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F17}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F17}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F18}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F18}}},
+        {{{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F19}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F19}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F20}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F20}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F21}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F21}}, {{KEY_LEFT_SHIFT, KEY_RIGHT_ALT, KEY_F22}, {KEY_LEFT_SHIFT, KEY_LEFT_ALT, KEY_F22}}}};
 
     if (spd < FAST)
     {
+#if RE_DEBUG
+        Serial.print("FAST Encoder ");
+        Serial.print(id);
+        Serial.print('\t');
+        Serial.print("Dir: ");
+        Serial.print(dir);
+        Serial.print('\t');
+        Serial.print("Key: ");
+#endif
         for (byte k = 0; k < 2; k++)
         {
             Keyboard.press(re_macroSlow[bitRead(swHold[2], id)][id][dir][k]);
+#if RE_DEBUG
+            Serial.print(re_macroSlow[bitRead(swHold[2], id)][id][dir][k]);
+            Serial.print(",");
+#endif
         }
         Keyboard.releaseAll();
+#if RE_DEBUG
+        Serial.print('\n');
+#endif
     }
     else
     {
+#if RE_DEBUG
+        Serial.print("FAST Encoder ");
+        Serial.print(id);
+        Serial.print('\t');
+        Serial.print("Dir: ");
+        Serial.print(dir);
+        Serial.print('\t');
+        Serial.print("Key: ");
+#endif
         for (byte k = 0; k < 3; k++)
         {
             Keyboard.press(re_macroFast[bitRead(swHold[2], id)][id][dir][k]);
+#if RE_DEBUG
+            Serial.print(re_macroFast[bitRead(swHold[2], id)][id][dir][k]);
+            Serial.print(",");
+#endif
         }
         Keyboard.releaseAll();
+#if RE_DEBUG
+        Serial.print('\n');
+#endif
     }
 }
 

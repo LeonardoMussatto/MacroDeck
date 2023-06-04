@@ -1,6 +1,13 @@
 #include "switches.h"
 #include <Adafruit_MCP23X17.h>
 
+#define SW_DEBUG 0
+#if SW_DEBUG
+const uint8_t switchID[2][7] = {
+    {1, 3, 5, 7, 9, 11, 13},
+    {2, 4, 6, 8, 10, 12, 14}};
+#endif
+
 // mcp 23017 over I2C
 #define SW_ADDR 0x20
 Adafruit_MCP23X17 sw;
@@ -16,7 +23,6 @@ const byte R_SW_4 = 2; // pin 23
 // Matrix
 const byte ROWS = 2;
 const byte COLS = 7;
-const byte MAX_MACRO = 3;
 
 // Keys
 State lastState[3][7] = {idle};
@@ -45,11 +51,11 @@ void sw_begin()
 
     for (byte r = 0; r < ROWS; r++)
     {
-        sw.pinMode(rowPins[r], INPUT_PULLUP);
+        sw.pinMode(rowPins[r], OUTPUT);
     }
     for (byte c = 0; c < COLS; c++)
     {
-        sw.pinMode(colPins[c], OUTPUT);
+        sw.pinMode(colPins[c], INPUT_PULLUP);
     }
 
     // use SW_INT as interrupt pin
@@ -135,37 +141,36 @@ bool handleState(bool closed, const byte &c, const byte &r, State (*keyStates)[7
         else if (!closed)
         {
             keyStates[r][c] = released;
-            lastState[r][c] = keyStates[r][c];
             return true;
         }
         break;
 
     case hold:
-        if ((millis() - holdTimer) > longPress)
-        {
-            keyStates[r][c] = longHold;
-            lastState[r][c] = keyStates[r][c];
-            return true;
-        }
-        else if (!closed)
+        // if ((millis() - holdTimer) > longPress)
+        // {
+        //     keyStates[r][c] = longHold;
+        //     lastState[r][c] = keyStates[r][c];
+        //     return true;
+        // }
+        // else
+        if (!closed)
         {
             keyStates[r][c] = released;
-            lastState[r][c] = keyStates[r][c];
             return true;
         }
         break;
 
-    // case longHold:
-    //     if (!closed)
-    //     {
-    //         keyStates[r][c] = released;
-    //         lastState[r][c] = keyStates[r][c];
-    //         return true;
-    //     }
-    //     break;
+        // case longHold:
+        //     if (!closed)
+        //     {
+        //         keyStates[r][c] = released;
+        //         lastState[r][c] = keyStates[r][c];
+        //         return true;
+        //     }
+        //     break;
 
     case released:
-        keyStates[r][c] = idle;
+        lastState[r][c] = idle;
         break;
 
     default:
@@ -230,9 +235,9 @@ bool getKeys(State (*keyStates)[7])
 void handleMatrix()
 {
     State keyStates[2][7] = {idle};
-    const unsigned char matrixBase[2][7][MAX_MACRO] = {
-        {{KEY_F13, 0, 0}, {KEY_F15, 0, 0}, {KEY_F17, 0, 0}, {KEY_F19, 0, 0}, {KEY_F21, 0, 0}, {KEY_F23, 0, 0}, {KEY_LEFT_CTRL, KEY_F13, 0}},
-        {{KEY_F14, 0, 0}, {KEY_F16, 0, 0}, {KEY_F18, 0, 0}, {KEY_F20, 0, 0}, {KEY_F22, 0, 0}, {KEY_F24, 0, 0}, {KEY_LEFT_CTRL, KEY_F14, 0}}};
+    const unsigned char matrixBase[2][7][2] = {
+        {{KEY_F13, 0}, {KEY_F15, 0}, {KEY_F17, 0}, {KEY_F19, 0}, {KEY_F21, 0}, {KEY_F23, 0}, {KEY_LEFT_CTRL, KEY_F13}},
+        {{KEY_F14, 0}, {KEY_F16, 0}, {KEY_F18, 0}, {KEY_F20, 0}, {KEY_F22, 0}, {KEY_F24, 0}, {KEY_LEFT_CTRL, KEY_F14}}};
 
     if (getKeys(keyStates))
     {
@@ -245,37 +250,67 @@ void handleMatrix()
                     switch (lastState[r][c])
                     {
                     case pressed:
-                        for (byte k = 0; k < MAX_MACRO; k++)
+#if SW_DEBUG
+                        Serial.print("Switch: ");
+                        Serial.print(switchID[r][c]);
+                        Serial.print('\t');
+                        Serial.print("Pressed");
+                        Serial.print('\t');
+                        Serial.print("Keys: ");
+#endif
+                        for (byte k = 0; k < 2; k++)
                         {
                             Keyboard.press(matrixBase[r][c][k]);
+#if SW_DEBUG
+                            Serial.print(matrixBase[r][c][k]);
+                            Serial.print(",");
+#endif
                         }
                         Keyboard.releaseAll();
+#if SW_DEBUG
+                        Serial.print('\n');
+#endif
                         break;
 
                     case hold:
-                        for (byte k = 0; k < MAX_MACRO; k++)
+#if SW_DEBUG
+                        Serial.print("Switch: ");
+                        Serial.print(switchID[r][c]);
+                        Serial.print('\t');
+                        Serial.print("Held");
+                        Serial.print('\t');
+                        Serial.print("Keys: ");
+#endif
+                        for (byte k = 0; k < 2; k++)
                         {
-                            Keyboard.press(matrixHold[r][c][k]);
+                            Keyboard.press(matrixBase[r][c][k]);
+#if SW_DEBUG
+                            Serial.print(matrixBase[r][c][k]);
+                            Serial.print(",");
+#endif
                         }
                         Keyboard.releaseAll();
+#if SW_DEBUG
+                        Serial.print('\n');
+#endif
                         break;
 
-                    // case longHold:
-                    //     if (bitRead(swHold[r], c))
-                    //     {
-                    //         for (byte s = 0; s < 2; s++)
-                    //         {
-                    //             swHold[s] &= 0b00000000;
-                    //         }
-                    //     }
-                    //     else
-                    //     {
-                    //         byte mask = 0b00000000;
-                    //         swHold[r ? 0 : 1] &= mask;
-                    //         bitSet(mask, c);
-                    //         swHold[r] = mask;
-                    //     }
-                    //     break;
+                        // case longHold:
+                        //     if (bitRead(swHold[r], c))
+                        //     {
+                        //         for (byte s = 0; s < 2; s++)
+                        //         {
+                        //             swHold[s] &= 0b00000000;
+                        //         }
+                        //     }
+                        //     else
+                        //     {
+                        //         byte mask = 0b00000000;
+                        //         swHold[r ? 0 : 1] &= mask;
+                        //         bitSet(mask, c);
+                        //         swHold[r] = mask;
+                        //     }
+                        //     break;
 
                     default:
                         break;
@@ -296,53 +331,28 @@ void handleMatrix()
  */
 void handleSwitch(int pin, int id)
 {
-    State swState[1][7] = {idle};
-    const unsigned char swBase[2][6][MAX_MACRO] = {
-        {{KEY_LEFT_CTRL, KEY_F15, 0}, {KEY_LEFT_CTRL, KEY_F16, 0}, {KEY_LEFT_CTRL, KEY_F17, 0}, {KEY_LEFT_CTRL, KEY_F18, 0}, {0, 0, 0}, {0, 0, 0}},
-        {{KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F15}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F16}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F17}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F18}, {0, 0, 0}, {0, 0, 0}}
-    };
+    const unsigned char swBase[2][6][3] = {
+        {{KEY_LEFT_CTRL, KEY_F15, 0}, {KEY_LEFT_CTRL, KEY_F16, 0}, {KEY_LEFT_CTRL, KEY_F17, 0}, {KEY_LEFT_CTRL, KEY_F18, 0}, {KEY_F23, 0, 0}, {KEY_F24, 0, 0}},
+        {{KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F15}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F16}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F17}, {KEY_LEFT_SHIFT, KEY_LEFT_CTRL, KEY_F18}, {KEY_F23, 0, 0}, {KEY_F24, 0, 0}}};
 
-    if (handleState(!sw.digitalRead(pin), id, 2, swState))
+#if SW_DEBUG
+    Serial.print("Switch: RE");
+    Serial.print(id);
+    Serial.print('\t');
+    Serial.print("Keys: ");
+#endif
+    for (byte k = 0; k < 3; k++)
     {
-        switch (swState[2][id])
-        {
-        case idle:
-            lastState[2][id] = idle;
-            break;
-
-        case pressed:
-            lastState[2][id] = pressed;
-            break;
-
-        case hold:
-            lastState[2][id] = hold;
-            break;
-
-        case released:
-            switch (lastState[2][id])
-            {
-            case pressed:
-                for (byte k = 0; k < MAX_MACRO; k++)
-                {
-                    Keyboard.press(swBase[bitRead(swHold[2], id)][id][k]);
-                }
-                Keyboard.releaseAll();
-                break;
-
-            case hold:
-                // byte bitId = (id % 2) ? id : id + 4;
-                bitWrite(swHold[2], id, !bitRead(swHold[2], id));
-                break;
-
-            default:
-                break;
-            }
-            break;
-
-        default:
-            break;
-        }
+        Keyboard.press(swBase[bitRead(swHold[2], id)][id][k]);
+#if SW_DEBUG
+        Serial.print(swBase[bitRead(swHold[2], id)][id][k]);
+        Serial.print(",");
+#endif
     }
+    Keyboard.releaseAll();
+#if SW_DEBUG
+    Serial.print('\n');
+#endif
 }
 
 /**

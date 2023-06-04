@@ -5,8 +5,12 @@ void setup()
 {
     sw_begin();
     re_begin();
-
-    activeProfile = Desktop;
+    Serial.begin(9600);
+    while (!Serial)
+    {
+        ;
+    }
+    Serial.println("Serial Ready");
 }
 
 void loop()

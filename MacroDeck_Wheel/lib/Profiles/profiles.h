@@ -21,7 +21,6 @@ enum Profiles
     TouchDesigner,
     File_Explorer,
 };
-extern Profiles activeProfile;
 
 enum State
 {

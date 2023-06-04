@@ -19,8 +19,6 @@
 
 byte swHold[3] = {00000000};
 
-Profiles activeProfile = Desktop;
-
 /**
  * @brief Return profile name as a String
  *
@@ -42,7 +40,7 @@ String decodeProfile(Profiles profile)
     case DaVinci_Edit:
         return "DaVinci - Edit";
     case PremierePro:
-        return "Premiere Pro"
+        return "Premiere Pro";
     case TouchDesigner:
         return "TouchDesigner";
     // case Unreal:
