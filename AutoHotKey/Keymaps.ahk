@@ -68,13 +68,14 @@ CheckProfile(){
                     }
             }
         }
-    } else {
-        if ActivePage !== "Desktop" {
-            ; LastProcess := WinGetProcessName()
-            arduino_updateProfile("Desktop")
-            ActivePage := "Desktop"
-        }
-    }
+    } 
+    ; else {
+    ;     if ActivePage !== "Desktop" {
+    ;         ; LastProcess := WinGetProcessName()
+    ;         arduino_updateProfile("Desktop")
+    ;         ActivePage := "Desktop"
+    ;     }
+    ; }
 }
 SetTimer CheckProfile, 100
 
@@ -121,7 +122,8 @@ arduino_updateProfile(profile){
 
 ;Base
     F12:: MsgBox "Active Page: " ActivePage "`n`OnTop: " OnTop "`n`WindowProcess: " WinGetProcessName("A")
-    ^F23:: global OnTop := !OnTop
+    F23:: global ActivePage := "Desktop"
+    +F12:: global OnTop := not OnTop
     ;Encoder_Switches
     ; ^F15::  return
     ; ^+F15:: return
@@ -183,24 +185,6 @@ arduino_updateProfile(profile){
     ^F13:: Send "^!s" ;Stashed Tab Sidebar
     ^F14:: Send "^q" ;Quit
 
-;Desktop
-#HotIf ActivePage == "Desktop"
-    ;Swithces
-    F13:: global ActivePage := "Explorer"
-    F14:: ToggleWindow("ahk_exe reaper.exe", A_ProgramFiles "\REAPER (x64)\reaper.exe")
-    F15:: ToggleWindow("ahk_exe Resolve.exe", A_ProgramFiles "\Blackmagic Design\DaVinci Resolve\Resolve.exe")
-    F16:: ToggleWindow("ahk_exe TouchDesigner.exe", A_ProgramFiles "\Derivative\TouchDesigner\bin\TouchDesigner.exe")
-    F17:: ToggleWindow("ahk_exe Code.exe", A_ProgramFiles "\Microsoft VS Code\Code.exe")
-    F18:: ToggleWindow("ahk_exe firefox.exe", A_ProgramFiles "\Firefox Developer Edition\firefox.exe")
-    F19:: Send "#2" ;Control Center
-    F20:: global ActivePage := "Graphic"
-    F21:: global ActivePage := "Coding"
-    ; F22:: return
-    ; F23:: return
-    ; F24:: return
-    ; ^F13:: return
-    ^F14:: Run A_AppData "\Spotify\Spotify.exe"
-
 #HotIf ActivePage == "Explorer"
     ;Switches
     F13:: { ;File Explorer
@@ -215,10 +199,10 @@ arduino_updateProfile(profile){
         }
     }
     F14:: Run("D:\Pictures")
-    F15:: Run "D:\Music"
-    F16:: Run "D:\Downloads"
-    F17:: Run "D:\Documents"
-    F18:: Run "D:\Projects"
+    F15:: Run("D:\Music")
+    F16:: Run("D:\Downloads")
+    F17:: Run("D:\Documents")
+    F18:: Run("D:\Projects")
     F19:: global ActivePage := "Desktop"
     F20:: Send "^{Space}" ;Preview
     F21:: Send "!{Enter}" ;Properties
@@ -260,7 +244,7 @@ arduino_updateProfile(profile){
     ;Switches
     F13:: { ;Terminal
         Send "#r"
-        WinWaitActive 
+        Sleep 50 
         Send "wt"
         Sleep 50
         Send "{Enter}"
@@ -289,5 +273,23 @@ arduino_updateProfile(profile){
     <!F15:: Send "{Left}"    ;Move Left
     >!F16:: Send "^k{PageUp}" ;Cycle Editors in Group Left
     <!F16:: Send "^k{PageDown}" ;Cycle Editors in Group Right
+
+;Desktop
+#HotIf ActivePage == "Desktop"
+    ;Swithces
+    F13:: global ActivePage := "Explorer"
+    F14:: ToggleWindow("ahk_exe reaper.exe", A_ProgramFiles "\REAPER (x64)\reaper.exe")
+    F15:: ToggleWindow("ahk_exe Resolve.exe", A_ProgramFiles "\Blackmagic Design\DaVinci Resolve\Resolve.exe")
+    F16:: ToggleWindow("ahk_exe TouchDesigner.exe", A_ProgramFiles "\Derivative\TouchDesigner\bin\TouchDesigner.exe")
+    F17:: ToggleWindow("ahk_exe Code.exe", A_ProgramFiles "\Microsoft VS Code\Code.exe")
+    F18:: ToggleWindow("ahk_exe firefox.exe", A_ProgramFiles "\Firefox Developer Edition\firefox.exe")
+    F19:: Send "#2" ;Control Center
+    F20:: global ActivePage := "Graphic"
+    F21:: global ActivePage := "Coding"
+    ; F22:: return
+    ; F23:: return
+    ; F24:: return
+    ; ^F13:: return
+    ^F14:: Run A_AppData "\Spotify\Spotify.exe"
 
 #HotIf
