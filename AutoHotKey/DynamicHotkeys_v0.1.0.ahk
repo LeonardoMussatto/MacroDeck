@@ -332,31 +332,6 @@ Profile_DDL_Change(GuiCtrlObj, Info?)
 
 ; }
 
-promptSave(ExitReason, *)
-{
-    if (ExitReason != "Error" && optionChanged)
-    {
-        Res := MsgBox("You made some changes. Would you like to save them?", "Unsaved changes", "Y/N/C")
-        switch res {
-            case "Yes":
-                saveOptions_All()
-            case "No":
-                doubleCheck := MsgBox("All changes will be lost`nAre you sure you want to exit?", "Unsaved changes", "Y/N")
-                if (doubleCheck == "No")
-                    return 1
-            case "Cancel":
-                return 1
-        }
-    }
-}
-
-optionChanged(*)
-{
-    global isOptionChanged
-    if (!isOptionChanged)
-        isOptionChanged := true
-}
-
 handleChange(GuiCtrlObj, Info?, *)
 {
     optionChanged()
@@ -387,6 +362,24 @@ handleChange(GuiCtrlObj, Info?, *)
 
 }
 
+promptSave(ExitReason, *)
+{
+    if (ExitReason != "Error" && isOptionChanged)
+    {
+        Res := MsgBox("You made some changes. Would you like to save them?", "Unsaved changes", "Y/N/C")
+        switch res {
+            case "Yes":
+                saveOptions_All()
+            case "No":
+                doubleCheck := MsgBox("All changes will be lost`nAre you sure you want to exit?", "Unsaved changes", "Y/N")
+                if (doubleCheck == "No")
+                    return 1
+            case "Cancel":
+                return 1
+        }
+    }
+}
+
 ; Helpers
 getInfo(name)
 {
@@ -402,6 +395,13 @@ getInfo(name)
     if (tmp.Has(4))
         out.idx := tmp[4]
     return out
+}
+
+optionChanged(*)
+{
+    global isOptionChanged
+    if (!isOptionChanged)
+        isOptionChanged := true
 }
 
 ; INI
@@ -425,13 +425,6 @@ buildNameINI()
         last := tmp[A_Index]
     }
     iniName := iniName_tmp ".ini"
-}
-
-readINI(section, key, default)
-{
-    Sleep 0
-    out := IniRead(iniName, section, key, default)
-    return out
 }
 
 ; Updates the settings file. If value is default, it deletes the setting to keep the file as tidy as possible
@@ -524,21 +517,21 @@ getAllOptions()
             default:
         }
         if (GuiCtrlObj.Type == "Edit" || GuiCtrlObj.Type == "Hotkey")
-            GuiCtrlObj.Value := readINI(currentProfile, GuiCtrlObjName, "")
+            GuiCtrlObj.Value := IniRead(iniName, currentProfile, GuiCtrlObjName, "")
         else
         {
             if (target.baseName == "ActionType_Sw")
             {
-                GuiCtrlObj.Value := Integer(readINI(currentProfile, GuiCtrlObjName, 1))
+                GuiCtrlObj.Value := Integer(IniRead(iniName, currentProfile, GuiCtrlObjName, 1))
                 ActionType_Sw_Change(GuiCtrlObj)
             }
             else if (target.baseName == "ActionType_Re")
             {
-                GuiCtrlObj.Value := Integer(readINI(currentProfile, GuiCtrlObjName, 1))
+                GuiCtrlObj.Value := Integer(IniRead(iniName, currentProfile, GuiCtrlObjName, 1))
                 ActionType_Re_Change(GuiCtrlObj)
             }
             else
-                GuiCtrlObj.Value := Integer(readINI(currentProfile, GuiCtrlObjName, 0))
+                GuiCtrlObj.Value := Integer(IniRead(iniName, currentProfile, GuiCtrlObjName, 0))
         }
     }
 }
