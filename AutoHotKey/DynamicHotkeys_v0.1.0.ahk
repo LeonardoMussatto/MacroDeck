@@ -4,6 +4,8 @@ SendMode "Input"
 SetWorkingDir A_ScriptDir
 A_MenuMaskKey := "vkFF" ; vkFF is no mapping.
 
+#Include ./Neutron/Neutron.ahk
+
 ; Global
 isShiftMode := false
 isAutoProfileSwitch := false
@@ -16,6 +18,15 @@ iniName := ""
 ControlPanel := Gui("+MinSize400x400 +Resize +AlwaysOnTop", "MacroDeck - Control Panel",)
 MenuTab := ControlPanel.AddTab3("x+8 y+16 -Wrap Choose1", ["Base", "Shift", "Encoders", "Profiles", "About"])
 ; MenuTab.OnEvent("Change", menuTab_Change)
+
+; Neutron GUI
+neutron := NeutronWindow().Load("index.html")
+if false {
+    FileInstall "./UI/index.html", "*"
+    FileInstall "./UI/bootstrap.min.css", "*"
+    FileInstall "./UI/bootstrap.bundle.min.js", "*"
+}
+
 
 ; GUI - Switches
 Switches := Map()
