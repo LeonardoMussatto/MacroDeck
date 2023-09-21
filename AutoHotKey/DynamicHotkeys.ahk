@@ -20,11 +20,31 @@ MenuTab := ControlPanel.AddTab3("x+8 y+16 -Wrap Choose1", ["Base", "Shift", "Enc
 ; MenuTab.OnEvent("Change", menuTab_Change)
 
 ; Neutron GUI
-neutron := NeutronWindow().Load("index.html")
+neutron := NeutronWindow().Load("./UI/index.html")
 if false {
     FileInstall "./UI/index.html", "*"
     FileInstall "./UI/bootstrap.min.css", "*"
     FileInstall "./UI/bootstrap.bundle.min.js", "*"
+    FileInstall "./UI/InteractiveMap_TOP_Bg.webp", "*"
+}
+; neutron.Gui("+LabelNeutron")
+neutron.Show("w1400 h900 Center", "MacroDeck - Control Panel")
+
+DeckUI_handleClick(neutron, event)
+{
+    idx := SubStr(event.target.id, 2)
+    controlType := SubStr(event.target.id, 1, 1)
+    switch controlType {
+        case "K":
+            neutron.doc.getElementById('SectionTitle').innerText := 'Switch ' idx
+
+        case "R":
+            neutron.doc.getElementById('SectionTitle').innerText := 'Encoder ' idx
+
+        default:
+
+    }
+    MsgBox "idx: " idx "`ntype: " controlType "`nsection: " neutron.doc.getElementById('SectionTitle').id
 }
 
 
