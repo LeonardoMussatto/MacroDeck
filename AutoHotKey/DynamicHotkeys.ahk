@@ -24,8 +24,9 @@ neutron := NeutronWindow().Load("./UI/index.html")
 if false {
     FileInstall "./UI/index.html", "*"
     FileInstall "./UI/bootstrap.min.css", "*"
+    FileInstall "./UI/jquery.min.js", "*"
     FileInstall "./UI/bootstrap.bundle.min.js", "*"
-    FileInstall "./UI/InteractiveMap_TOP_Bg.webp", "*"
+    FileInstall "./UI/InteractiveMap_TOP1.png", "*"
 }
 ; neutron.Gui("+LabelNeutron")
 neutron.Show("w1400 h900 Center", "MacroDeck - Control Panel")
@@ -100,7 +101,7 @@ buildNameINI()
 updateINI("Settings", "currentProfile", currentProfile, "")
 getAllOptions()
 
-ControlPanel.Show()
+; ControlPanel.Show()
 
 OnExit promptSave
 
