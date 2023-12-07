@@ -90,10 +90,16 @@
         background-color: whitesmoke;
         border-radius: 30px;
       }
+      #switchHeader,
       #optionCard {
         background-color: whitesmoke;
         border-radius: 30px;
         /* padding: 3%; */
+      }
+      #switchHeader select {
+        background-color: transparent;
+        border: none;
+        font-size: x-large;
       }
     </style>
   </head>
@@ -130,7 +136,7 @@
             <p class="mb-2 mt-3">Bindings</p>
           </button>
           <button
-            class="nav-link pt-3 mb-3"
+            class="nav-link pt-3 mb-3 disabled"
             id="mainMenu-pills-lights-tab"
             data-toggle="pill"
             data-target="#mainMenu-pills-lights"
@@ -178,7 +184,7 @@
             <p class="mb-2 mt-3">Profiles</p>
           </button>
           <button
-            class="nav-link pt-3"
+            class="nav-link pt-3 disabled"
             id="mainMenu-pills-settings-tab"
             data-toggle="pill"
             data-target="#mainMenu-pills-settings"
@@ -213,8 +219,34 @@
           role="tabpanel"
           aria-labelledby="mainMenu-pills-bindings-tab"
         >
-          <header class="row justify-content-center mt-4 pt-3 mb-5">
-            <h1>Switch 12</h1>
+          <header
+            class="row justify-content-center mt-5 mb-5 ml-3 mr-1"
+            id="switchHeader"
+          >
+            <div class="form-group row d-flex align-items-center mb-1 mt-2">
+              <label class="col-8 h2 mb-1" for="exampleFormControlSelect1"
+                >Switch</label
+              >
+              <!-- TODO STYLE as h2, without input field -->
+              <select class="form-control col-4" id="exampleFormControlSelect1">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+              </select>
+            </div>
           </header>
           <div class="row align-content-center justify-content-around">
             <!-- ActionType Menu -->
@@ -342,11 +374,11 @@
                         width="1.2em"
                         height="1.2em"
                         fill="currentColor"
-                        class="bi bi-option mt-2"
+                        class="bi bi-command mt-2"
                         viewBox="0 0 16 16"
                       >
                         <path
-                          d="M1 2.5a.5.5 0 0 1 .5-.5h3.797a.5.5 0 0 1 .439.26L11 13h3.5a.5.5 0 0 1 0 1h-3.797a.5.5 0 0 1-.439-.26L5 3H1.5a.5.5 0 0 1-.5-.5m10 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"
+                          d="M3.5 2A1.5 1.5 0 0 1 5 3.5V5H3.5a1.5 1.5 0 1 1 0-3M6 5V3.5A2.5 2.5 0 1 0 3.5 6H5v4H3.5A2.5 2.5 0 1 0 6 12.5V11h4v1.5a2.5 2.5 0 1 0 2.5-2.5H11V6h1.5A2.5 2.5 0 1 0 10 3.5V5zm4 1v4H6V6zm1-1V3.5A1.5 1.5 0 1 1 12.5 5zm0 6h1.5a1.5 1.5 0 1 1-1.5 1.5zm-6 0v1.5A1.5 1.5 0 1 1 3.5 11z"
                         />
                       </svg>
                       <p class="mb-0 mt-2">Ctrl</p>
@@ -939,7 +971,7 @@
           Settings
         </section>
       </main>
-      <aside class="col-4">
+      <aside class="col-4 p-0">
         <svg
           id="LeftView-2"
           data-name="LeftView"
