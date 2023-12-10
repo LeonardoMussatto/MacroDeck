@@ -81,6 +81,13 @@
       .show > .btn-outline-primary.dropdown-toggle:focus {
         box-shadow: 0 0 0 0.2rem cadetblue;
       }
+      #profileControls label {
+        width: auto;
+      }
+      #modSide label {
+        width: 2.5em;
+        height: 2.5em;
+      }
       #mainMenu-pills-tab {
         /* height: 94vh; */
         background-color: whitesmoke;
@@ -224,11 +231,14 @@
             id="switchHeader"
           >
             <div class="form-group row d-flex align-items-center mb-1 mt-2">
-              <label class="col-8 h2 mb-1" for="exampleFormControlSelect1"
+              <label class="col-7 h2 mb-1" for="exampleFormControlSelect1"
                 >Switch</label
               >
               <!-- TODO STYLE as h2, without input field -->
-              <select class="form-control col-4" id="exampleFormControlSelect1">
+              <select
+                class="form-control col-5 mb-1"
+                id="exampleFormControlSelect1"
+              >
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -351,15 +361,43 @@
                       aria-describedby="launch-mediaplayer"
                     />
                   </div>
-                  <div class="custom-control custom-switch mt-5 mb-3">
-                    <input
-                      type="checkbox"
-                      class="custom-control-input"
-                      id="modifiersToggle"
-                    />
-                    <label class="custom-control-label h5" for="modifiersToggle"
-                      >Modifiers</label
-                    >
+                  <div class="form-row align-items-center mt-5 mb-3">
+                    <div class="col">
+                      <div class="custom-control custom-switch">
+                        <input
+                          type="checkbox"
+                          class="custom-control-input"
+                          id="modifiersToggle"
+                        />
+                        <label
+                          class="custom-control-label h5"
+                          for="modifiersToggle"
+                          >Modifiers</label
+                        >
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div
+                        class="btn-group btn-group-toggle"
+                        id="modSide"
+                        data-toggle="buttons"
+                        role="group"
+                        aria-label="modSide"
+                      >
+                        <label class="btn btn-outline-primary rounded mr-2">
+                          <input type="radio" name="modifiers" id="ModLeft" />
+                          <p class="mb-0">L</p>
+                        </label>
+                        <label class="btn btn-outline-primary rounded mr-2">
+                          <input type="radio" name="modifiers" id="ModLeft" />
+                          <p class="mb-0">-</p>
+                        </label>
+                        <label class="btn btn-outline-primary rounded mr-2">
+                          <input type="radio" name="modifiers" id="ModLeft" />
+                          <p class="mb-0">R</p>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                   <div
                     class="btn-group btn-group-toggle mb-4"
@@ -763,7 +801,7 @@
                       aria-describedby="launch-mediaplayer"
                     />
                   </div>
-                  <div class="input-group mb-5">
+                  <div class="input-group mb-4">
                     <div class="input-group-prepend">
                       <button
                         class="btn btn-outline-primary"
@@ -854,8 +892,8 @@
                       <input type="radio" name="modifiers" id="Window_Min" />
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="1.2em"
+                        height="1.2em"
                         fill="currentColor"
                         class="bi bi-dash-lg mt-2"
                         viewBox="0 0 16 16"
@@ -873,8 +911,8 @@
                       <input type="radio" name="modifiers" id="Window_Max" />
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="1.2em"
+                        height="1.2em"
                         fill="currentColor"
                         class="bi bi-fullscreen mt-2"
                         viewBox="0 0 16 16"
@@ -885,7 +923,56 @@
                       </svg>
                       <p class="mb-0 mt-2">Max</p>
                     </label>
+                    <label
+                      class="btn btn-outline-primary rounded flex-grow-0 mr-2"
+                    >
+                      <input type="radio" name="modifiers" id="Window_Move" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.2em"
+                        height="1.2em"
+                        fill="currentColor"
+                        class="bi bi-arrows-move mt-2"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10M.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8"
+                        />
+                      </svg>
+                      <p class="mb-0 mt-2">Move</p>
+                    </label>
                   </div>
+                  <span class="form-row">
+                    <div class="col">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <label class="input-group-text" for="moveX">x</label>
+                        </div>
+                        <input
+                          id="moveX"
+                          type="text"
+                          class="form-control"
+                          placeholder="px"
+                          aria-describedby="launch-mediaplayer"
+                        />
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <label class="input-group-text" for="moveY">y</label>
+                        </div>
+                        <input
+                          id="moveY"
+                          type="text"
+                          class="form-control"
+                          placeholder="px"
+                          aria-describedby="launch-mediaplayer"
+                        />
+                      </div>
+                    </div>
+                  </span>
                 </div>
                 <!-- Profile -->
                 <div
@@ -894,37 +981,91 @@
                   role="tabpanel"
                   aria-labelledby="actionType-pills-profile-tab"
                 >
-                  <div class="custom-control custom-switch mb-5">
+                  <div class="custom-control custom-switch mb-4">
                     <input
                       type="checkbox"
                       class="custom-control-input"
                       id="profileAutoSwitch"
                     />
-                    <label class="custom-control-label" for="profileAutoSwitch"
+                    <label
+                      class="custom-control-label h5"
+                      for="profileAutoSwitch"
                       >Auto-Switch</label
                     >
                   </div>
                   <div
-                    class="btn-group btn-group-toggle mb-4"
+                    class="btn-group btn-group-toggle flex-wrap mb-4"
+                    id="profileControls"
                     data-toggle="buttons"
                     role="group"
                     aria-label="profileControls"
                   >
-                    <label class="btn btn-outline-primary rounded mr-2">
+                    <label class="btn btn-outline-primary rounded mr-2 mb-2">
                       <input type="radio" name="modifiers" id="AltMod" />
-                      <p class="mb-0">AltMode</p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.6em"
+                        height="1.6em"
+                        fill="currentColor"
+                        class="bi bi-lightning-charge mt-2"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"
+                        />
+                      </svg>
+                      <p class="mb-0 mt-1">AltMode</p>
                     </label>
                     <label class="btn btn-outline-primary rounded mr-2">
                       <input type="radio" name="modifiers" id="AltMod" />
-                      <p class="mb-0">Cycle Profiles</p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.6em"
+                        height="1.6em"
+                        fill="currentColor"
+                        class="bi bi-repeat mt-2"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192Zm3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z"
+                        />
+                      </svg>
+                      <p class="mb-0 mt-1">Cycle Profiles</p>
                     </label>
                     <label class="btn btn-outline-primary rounded mr-2">
                       <input type="radio" name="modifiers" id="AltMod" />
-                      <p class="mb-0">Show Profiles</p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.6em"
+                        height="1.6em"
+                        fill="currentColor"
+                        class="bi bi-collection mt-2"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1zm2-2a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6zm1.5.5A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5z"
+                        />
+                      </svg>
+                      <p class="mb-0 mt-1">Show Profiles</p>
                     </label>
-                    <label class="btn btn-outline-primary rounded">
+                    <label class="btn btn-outline-primary rounded mr-2">
                       <input type="radio" name="modifiers" id="AltMod" />
-                      <p class="mb-0">Activate Profile</p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.6em"
+                        height="1.6em"
+                        fill="currentColor"
+                        class="bi bi-collection-play mt-2"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3m2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1m2.765 5.576A.5.5 0 0 0 6 7v5a.5.5 0 0 0 .765.424l4-2.5a.5.5 0 0 0 0-.848l-4-2.5z"
+                        />
+                        <path
+                          d="M1.5 14.5A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5zm13-1a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5h-13A.5.5 0 0 0 1 6v7a.5.5 0 0 0 .5.5z"
+                        />
+                      </svg>
+                      <p class="mb-0 mt-1">Select Profile</p>
                     </label>
                   </div>
                   <div class="input-group mt-3">
